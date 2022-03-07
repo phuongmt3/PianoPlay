@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
         Uint32 startTime = SDL_GetTicks();
         render();
         handleInput(isRunning);
-        update();
+        update(isRunning);
         int framePeriod = SDL_GetTicks() - startTime;
         if (framePeriod < secPerFrame)
             SDL_Delay(secPerFrame - framePeriod);
