@@ -4,21 +4,43 @@ SDL_Window* window;
 SDL_Renderer* Global::renderer;
 SDL_Event event;//why event cannot be a pointer
 SDL_Texture *Global::click, *Global::unclick, *Global::bg;
+Camera Global::camera;
+Mix_Chunk* AudioManager::notesList[7][8];
+Mix_Chunk* AudioManager::winnerChunk;
 
 vector<Tile> tileList;
-int tileCount = 100;
+int Global::tileCount;
 int Global::curTileID = 0;
 
 
-void addTile()
+void addTile()//a,b: a with b; a-b: a before b
 {
-    for (int i = 0; i < tileCount; i++)
-        tileList.push_back(Tile(150,200,i));
+    ifstream fin("pianoHub/TwinkleTwinkleLittleStar.txt");
+    fin >> Global::tileCount;
+    //Global::tileCount = 5;
+    string sin; getline(fin, sin);
+    for (int i = 0; i < Global::tileCount; i++){
+        fin >> sin;
+        if (i > 0)
+            tileList.push_back(Tile(150,200,i,tileList[i - 1].takePos(),sin));
+        else
+            tileList.push_back(Tile(150,200,i,4,sin));
+    }
+}
+
+void addNote()
+{
+    for (int chu = 0; chu < 7; chu++)
+        for (int so = 0; so < 8; so++){
+            string s(2, ' ');
+            s[0] = chu + 'A'; s[1] = so + '0';
+            AudioManager::addNote(s);
+        }
 }
 
 void showTile()
 {
-    for (int i = 0; i < tileCount; i++)
+    for (int i = 0; i < Global::tileCount; i++)
         tileList[i].show();
 }
 
@@ -37,12 +59,16 @@ void init(const char* title, int xpos, int ypos,
         if (Global::renderer)
             cout << "Created renderer\n";
         else cout << "Cannot create renderer\n";
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+            printf("%s", Mix_GetError());
         isRunning = 1;
     }
     else isRunning = 0;
     Global::click = TextureManager::takeTexture("pianoHub/tileTouched.png");
     Global::unclick = TextureManager::takeTexture("pianoHub/tileUntouched.png");
     Global::bg = TextureManager::takeTexture("pianoHub/piano.png");
+    AudioManager::winnerChunk = Mix_LoadWAV("pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
+    addNote();
     addTile();
 }
 
@@ -63,13 +89,13 @@ void handleInput(bool& isRunning){
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym)
         {
-        case SDLK_h:
+        case SDLK_d:
             tileList[Global::curTileID].handleInput(0, isRunning); break;
-        case SDLK_j:
+        case SDLK_f:
             tileList[Global::curTileID].handleInput(1, isRunning); break;
-        case SDLK_k:
+        case SDLK_j:
             tileList[Global::curTileID].handleInput(2, isRunning); break;
-        case SDLK_l:
+        case SDLK_k:
             tileList[Global::curTileID].handleInput(3, isRunning); break;
         default: break;
         } break;
@@ -78,12 +104,13 @@ void handleInput(bool& isRunning){
 }
 
 void update(bool& isRunning){
-    //camera.update();
-    for (int i = 0; i < tileCount; i++)
+    Global::camera.update();
+    for (int i = 0; i < Global::tileCount; i++)
         tileList[i].update(isRunning);
 }
 
 void clean(){
+    Mix_CloseAudio();
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(Global::renderer);
     SDL_Quit();

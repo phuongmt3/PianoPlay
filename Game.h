@@ -6,30 +6,40 @@
 #include <SDL.h>
 #include <ctime>
 #include <vector>
+#include <fstream>
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 using namespace std;//currently resources is not sync, change link variable
 
 const int WINDOW_WIDTH = 600;
 const int WINDOW_HEIGHT = 800;
 
-class Global
-{
-public:
-    static SDL_Renderer* renderer;
-    static int curTileID;
-    static SDL_Texture *click, *unclick, *bg;
-};
-
 class Camera
 {
 public:
-    int y = 5, speed = 0;
+    int y = 8, speed = 0;
     void update()
     {
         y += speed;
     }
 };
-static Camera camera;
+
+class AudioManager
+{
+public:
+    static Mix_Chunk* notesList[7][8];//can improve to [14][8]
+    static Mix_Chunk* winnerChunk;
+    static void playNote(string note, int channel)
+    {
+        Mix_PlayChannel(channel, notesList[note[0]-'A'][note[1]-'0'], 0);
+    }
+    static void addNote(string note)
+    {
+        string s = "pianoHub/piano-mp3/" + note + ".wav";
+        notesList[note[0]-'A'][note[1]-'0'] =
+        Mix_LoadWAV(&s[0]);
+    }
+};
 
 class TextureManager
 {
@@ -41,12 +51,16 @@ public:
 class Tile
 {
 public:
-    Tile(int width, int height, int stt);
+    Tile(int width, int height, int stt, int prePos, string _note);
     void show();
     void handleInput(int posInput, bool& isRunning);
     void update(bool& isRunning);
+    int takePos(){
+        return pos;
+    }
 private:
     int w, h, pos;
+    string note;
     SDL_Rect srcR, desR;
     bool touched = 0;
 };
@@ -58,4 +72,12 @@ void handleInput(bool& isRunning);
 void update(bool& isRunning);
 void clean();
 
+class Global
+{
+public:
+    static SDL_Renderer* renderer;
+    static int curTileID, tileCount;
+    static SDL_Texture *click, *unclick, *bg;
+    static Camera camera;
+};
 #endif // GAME_H_INCLUDED
