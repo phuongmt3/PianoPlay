@@ -89,13 +89,13 @@ void handleInput(bool& isRunning){
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym)
         {
-        case SDLK_d:
-            tileList[Global::curTileID].handleInput(0, isRunning); break;
         case SDLK_f:
+            tileList[Global::curTileID].handleInput(0, isRunning); break;
+        case SDLK_g:
             tileList[Global::curTileID].handleInput(1, isRunning); break;
-        case SDLK_j:
+        case SDLK_h:
             tileList[Global::curTileID].handleInput(2, isRunning); break;
-        case SDLK_k:
+        case SDLK_j:
             tileList[Global::curTileID].handleInput(3, isRunning); break;
         default: break;
         } break;
