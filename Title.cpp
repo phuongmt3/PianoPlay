@@ -4,8 +4,6 @@ Tile::Tile(int width, int height, int stt, int prePos)
 {
     w = width; h = height;
     pos = rand()%4;
-    touched = 0;
-    fill(runSecondTimeForChannel, runSecondTimeForChannel + 6, 0);
     if (pos == prePos)
         pos = (pos + 1)%4;
     srcR.h = desR.h = h;
@@ -42,25 +40,35 @@ void Tile::handleInput(int posInput, bool& isRunning)
     cout << Global::curTileID << endl;
     if (posInput == pos){
         touched = 1, Global::curTileID++;
-        for (int channel = 0; channel < 3; channel++){
+        for (int channel = 0; channel < channelCount; channel++){
             if (note[channel][0] != ""){
-                if (note[channel][1] == "")
-                    AudioManager::playNote(note[channel][0], channel, 0), cout<<note[channel][0]<<'\n';
+                if (note[channel][0] == "!"){
+                    for (int chan = 0; chan < channelCount; chan++)
+                        if (Mix_Playing(chan))
+                            Mix_Pause(chan);
+                }
+                else if (note[channel][1] == "")
+                    AudioManager::playNote(note[channel][0], channel, 0);
                 else
-                    AudioManager::playNote(note[channel][0], channel, waitingTimeForSecondNote),
+                    AudioManager::playNote(note[channel][0], channel, Global::waitingTimeForSecondNote),
                     runSecondTimeForChannel[channel] = 1;
             }
             else if (note[channel][1] != "")
                 runSecondTimeForChannel[channel] = 1;
             if (bass[channel][0] != ""){
-                if (bass[channel][1] == "")//channel nums
-                    AudioManager::playNote(bass[channel][0], channel + 3, 0);
+                if (bass[channel][0] == "!"){
+                    for (int chan = 0; chan < channelCount; chan++)
+                        if (Mix_Playing(chan + channelCount))
+                            Mix_Pause(chan + channelCount);
+                }
+                else if (bass[channel][1] == "")
+                    AudioManager::playNote(bass[channel][0], channel + channelCount, 0);
                 else
-                    AudioManager::playNote(bass[channel][0], channel + 3, waitingTimeForSecondNote),
-                    runSecondTimeForChannel[channel + 3] = 1;
+                    AudioManager::playNote(bass[channel][0], channel + channelCount, Global::waitingTimeForSecondNote),
+                    runSecondTimeForChannel[channel + channelCount] = 1;
             }
             else if (bass[channel][1] != "")
-                runSecondTimeForChannel[channel + 3] = 1;
+                runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
     else{
@@ -73,24 +81,20 @@ void Tile::update(bool& isRunning)
 {
     desR.y += Global::camera.y;
     if (desR.y > WINDOW_HEIGHT && !touched){
-        //AudioManager::playNote("A0", 0, 0);
-        //isRunning = 0, cout << "You fail because of untouched\n";
+        AudioManager::playNote("A0", 0, 0);
+        isRunning = 0, cout << "You fail because of untouched\n";
     }
     else if (desR.y + h < 0 && touched){
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0;
     }
-    else if (Global::curTileID == Global::tileCount){
-        isRunning = 0; //cout << "You are winner!\n";//why keep running tileCount times??
-        Mix_PlayChannel(3, AudioManager::winnerChunk, 0);
-    }
-    for (int channel = 0; channel < 6; channel++)//change num of channels
+    for (int channel = 0; channel < channelCount * 2; channel++)//change num of channels
         if (!Mix_Playing(channel) && runSecondTimeForChannel[channel]){
-            if (channel < 3)
+            if (channel < channelCount)
                 AudioManager::playNote(note[channel][1], channel, 0),
                 runSecondTimeForChannel[channel] = 0;
             else
-                AudioManager::playNote(bass[channel - 3][1], channel, 0),
+                AudioManager::playNote(bass[channel - channelCount][1], channel, 0),
                 runSecondTimeForChannel[channel] = 0;
         }
 }

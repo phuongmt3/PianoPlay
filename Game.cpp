@@ -11,6 +11,7 @@ Mix_Chunk* AudioManager::winnerChunk;
 vector<Tile> tileList;
 int Global::tileCount;
 int Global::curTileID = 0;
+int Global::waitingTimeForSecondNote = 120;
 
 bool isChar(char c)
 {
@@ -138,6 +139,11 @@ void update(bool& isRunning){
     Global::camera.update();
     for (int i = 0; i < Global::tileCount; i++)
         tileList[i].update(isRunning);
+    if (Global::curTileID == Global::tileCount
+        && tileList[Global::curTileID - 1].desR.y > WINDOW_HEIGHT){
+        isRunning = 0; cout << "You are winner!\n";
+        Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
+    }
 }
 
 void clean(){

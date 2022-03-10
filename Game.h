@@ -15,10 +15,11 @@ using namespace std;//currently resources is not sync, change link variable
 const int WINDOW_WIDTH = 600;
 const int WINDOW_HEIGHT = 800;
 
+class Global;
 class Camera
 {
 public:
-    int y = 8, speed = 0;
+    int y = 8, speed = 0;//8
     void update()
     {
         y += speed;
@@ -61,7 +62,14 @@ public:
 
 class Tile
 {
+private:
+    int w, h, pos;
+    const int channelCount = 4;
+    bool touched = 0, runSecondTimeForChannel[6] = {0,0,0,0,0,0};
 public:
+    SDL_Rect srcR, desR;
+    string note[4][2];//~channelCount
+    string bass[4][2];
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, bool isSecond, int isBass);
     void show();
@@ -70,15 +78,7 @@ public:
     int takePos(){
         return pos;
     }
-    string takeNote(int i, int j){
-        return note[i][j];
-    }
-private:
-    int w, h, pos, waitingTimeForSecondNote = 250;
-    string note[3][2];
-    string bass[3][2];
-    SDL_Rect srcR, desR;
-    bool touched, runSecondTimeForChannel[6];
+
 };
 
 void init(const char* title, int xpos, int ypos,
@@ -95,5 +95,6 @@ public:
     static int curTileID, tileCount;
     static SDL_Texture *click, *unclick, *bg;
     static Camera camera;
+    static int waitingTimeForSecondNote;
 };
 #endif // GAME_H_INCLUDED
