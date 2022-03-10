@@ -18,10 +18,8 @@ int main(int argc, char* argv[])
         if (framePeriod < secPerFrame)
             SDL_Delay(secPerFrame - framePeriod);
         if (!isRunning)
-            SDL_Delay(2000);
+            SDL_Delay(1000);
     }while (isRunning);
-    //render();
-    //SDL_Delay(2000);
     clean();
     return 0;
 }

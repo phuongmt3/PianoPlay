@@ -7,6 +7,7 @@
 #include <ctime>
 #include <vector>
 #include <fstream>
+#include <string>
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 using namespace std;//currently resources is not sync, change link variable
@@ -27,17 +28,27 @@ public:
 class AudioManager
 {
 public:
-    static Mix_Chunk* notesList[7][8];//can improve to [14][8]
+    static Mix_Chunk* notesList[14][8];//can improve to [14][8]
     static Mix_Chunk* winnerChunk;
-    static void playNote(string note, int channel)
+    static void playNote(const string& note, int channel, int time)
     {
-        Mix_PlayChannel(channel, notesList[note[0]-'A'][note[1]-'0'], 0);
+        Mix_Chunk* sound;
+        if (note[1] >= '0' && note[1] <= '9')
+            sound = notesList[note[0]-'A'][note[1]-'0'];
+        else
+            sound =  notesList[note[0]-'A'+7][note[2]-'0'];
+        if (time == 0)
+            Mix_PlayChannel(channel, sound, 0);
+        else
+            Mix_PlayChannelTimed(channel, sound, 0, time);
     }
-    static void addNote(string note)
+    static void addNote(const string& note)
     {
-        string s = "pianoHub/piano-mp3/" + note + ".wav";
-        notesList[note[0]-'A'][note[1]-'0'] =
-        Mix_LoadWAV(&s[0]);
+        string s = "PianoPlay/pianoHub/piano-mp3/" + note + ".wav";
+        if (note[1] >= '0' && note[1] <= '9')
+            notesList[note[0]-'A'][note[1]-'0'] = Mix_LoadWAV(&s[0]);
+        else
+            notesList[note[0]-'A'+7][note[2]-'0'] = Mix_LoadWAV(&s[0]);
     }
 };
 
@@ -51,18 +62,23 @@ public:
 class Tile
 {
 public:
-    Tile(int width, int height, int stt, int prePos, string _note);
+    Tile(int width, int height, int stt, int prePos);
+    void setNote(string _note, int channel, bool isSecond, int isBass);
     void show();
     void handleInput(int posInput, bool& isRunning);
     void update(bool& isRunning);
     int takePos(){
         return pos;
     }
+    string takeNote(int i, int j){
+        return note[i][j];
+    }
 private:
-    int w, h, pos;
-    string note;
+    int w, h, pos, waitingTimeForSecondNote = 250;
+    string note[3][2];
+    string bass[3][2];
     SDL_Rect srcR, desR;
-    bool touched = 0;
+    bool touched, runSecondTimeForChannel[6];
 };
 
 void init(const char* title, int xpos, int ypos,

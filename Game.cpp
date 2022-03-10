@@ -5,35 +5,66 @@ SDL_Renderer* Global::renderer;
 SDL_Event event;//why event cannot be a pointer
 SDL_Texture *Global::click, *Global::unclick, *Global::bg;
 Camera Global::camera;
-Mix_Chunk* AudioManager::notesList[7][8];
+Mix_Chunk* AudioManager::notesList[14][8];
 Mix_Chunk* AudioManager::winnerChunk;
 
 vector<Tile> tileList;
 int Global::tileCount;
 int Global::curTileID = 0;
 
+bool isChar(char c)
+{
+    if (c == ',' || c == '-' || c == '+')
+        return 1;
+    return 0;
+}
 
 void addTile()//a,b: a with b; a-b: a before b
 {
-    ifstream fin("pianoHub/TwinkleTwinkleLittleStar.txt");
+    ifstream fin("PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt");
     fin >> Global::tileCount;
     //Global::tileCount = 5;
-    string sin; getline(fin, sin);
+    string s;
     for (int i = 0; i < Global::tileCount; i++){
-        fin >> sin;
+        fin >> s;
         if (i > 0)
-            tileList.push_back(Tile(150,200,i,tileList[i - 1].takePos(),sin));
+            tileList.push_back(Tile(150,200,i,tileList[i - 1].takePos()));
         else
-            tileList.push_back(Tile(150,200,i,4,sin));
+            tileList.push_back(Tile(150,200,i,4));
+        Tile* curTile = &tileList.back();
+        int pos = 0, channel = 0;
+        bool isSecond = 0;//2 note lien tiep
+        for (int bass = 0; bass < 2; bass++){
+            channel = 0;
+            while (s[pos] != ',' && pos < int(s.length())){
+                if (!isChar(s[pos])){
+                    string note = "";
+                    while (!isChar(s[pos]) && pos < int(s.length()))
+                        note += s[pos], pos++;
+                    curTile->setNote(note,channel,isSecond,bass);
+                    isSecond = 0;
+                }
+                else if (s[pos] == '-'){
+                    isSecond = 1; pos++;
+                }
+                else if (s[pos] == '+'){//currently +/- only
+                    channel++; pos++;
+                }
+            }
+            pos++;
+        }
     }
 }
 
 void addNote()
 {
-    for (int chu = 0; chu < 7; chu++)
+    for (int chu = 0; chu < 14; chu++)
         for (int so = 0; so < 8; so++){
-            string s(2, ' ');
-            s[0] = chu + 'A'; s[1] = so + '0';
+            string s = "";
+            if (chu < 7)
+                s = s + char(chu + 'A') + char(so + '0');
+            else
+                s = s + char(chu + 'A' - 7) + 'b' + char(so + '0');
             AudioManager::addNote(s);
         }
 }
@@ -64,10 +95,10 @@ void init(const char* title, int xpos, int ypos,
         isRunning = 1;
     }
     else isRunning = 0;
-    Global::click = TextureManager::takeTexture("pianoHub/tileTouched.png");
-    Global::unclick = TextureManager::takeTexture("pianoHub/tileUntouched.png");
-    Global::bg = TextureManager::takeTexture("pianoHub/piano.png");
-    AudioManager::winnerChunk = Mix_LoadWAV("pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
+    Global::click = TextureManager::takeTexture("PianoPlay/pianoHub/tileTouched.png");
+    Global::unclick = TextureManager::takeTexture("PianoPlay/pianoHub/tileUntouched.png");
+    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
+    AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addNote();
     addTile();
 }
