@@ -29,6 +29,8 @@ void init()
 
 bool isNum(char c)
 {
+    if (c == 'a')
+        return 1;
     if (c > '9' || c < '0')
         return 0;
     return 1;
@@ -36,7 +38,7 @@ bool isNum(char c)
 
 int main()
 {
-    string songName = "MyAll_AyumiHamasaki";
+    string songName = "Test";
     ifstream fin("Raw_" + songName + ".txt");
     ofstream fout(songName + ".txt");
     if (!fin.is_open()){
@@ -49,13 +51,25 @@ int main()
         string s; fin >> s;
         int num = 0;
         int pos = 0;
-        while (s[pos] != ',' && pos < s.length()){
+        while (s[pos] != ',' && pos < s.length()){//range = [-45,145]
             //translate first channel
             if (isNum(s[pos])){
-                num = (s[pos] - '0') * 10, pos++;
-                if (isNum(s[pos]) && pos < s.length())
-                    num += s[pos] -'0', pos++;
-                int changeCircle = num / 35;
+                num = 0; int cntChar = 0; bool sign = 1;
+                while (isNum(s[pos]) && pos < s.length()){
+                    if (s[pos] == 'a')
+                        sign = 0;
+                    else
+                        num = num * 10 + s[pos] -'0', cntChar++;
+                    pos++;
+                }
+                if (num % 10 != 5 || (num == 5 && cntChar == 1))
+                    num *= 10;
+                if (!sign) num = -num;
+
+                int changeCircle = 0;
+                while (num < 0)
+                    num += 35, changeCircle--;
+                changeCircle += num / 35;
                 num %= 35;
                 if (num == 0)
                     fout << key0[num] << base[0] + changeCircle - 1;
@@ -68,10 +82,22 @@ int main()
         fout << s[pos]; pos++;
         while (pos < s.length()){
             if (isNum(s[pos])){
-                num = (s[pos] - '0') * 10, pos++;
-                if (isNum(s[pos]) && pos < s.length())
-                    num += s[pos] -'0', pos++;
-                int changeCircle = num / 35;
+                num = 0; int cntChar = 0; bool sign = 1;
+                while (isNum(s[pos]) && pos < s.length()){
+                    if (s[pos] == 'a')
+                        sign = 0;
+                    else
+                        num = num * 10 + s[pos] -'0', cntChar++;
+                    pos++;
+                }
+                if (num % 10 != 5 || (num == 5 && cntChar == 1))
+                    num *= 10;
+                if (!sign) num = -num;
+
+                int changeCircle = 0;
+                while (num < 0)
+                    num += 35, changeCircle--;
+                changeCircle += num / 35;
                 num %= 35;
                 if (num < 30)
                     fout << key1[num] << base[1] + changeCircle - 1;

@@ -19,7 +19,7 @@ class Global;
 class Camera
 {
 public:
-    double y = 8, speed = 1;//8
+    double y = 8, speed = 1.5;
     void update()
     {
         //y += speed;
