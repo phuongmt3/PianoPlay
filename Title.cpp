@@ -38,7 +38,10 @@ void Tile::show()
 void Tile::handleInput(int posInput, bool& isRunning)
 {
     cout << Global::curTileID << endl;
-    if (posInput == pos){
+    //if (posInput == pos){
+    if (desR.y > 500 && !touched){
+        cout << SDL_GetTicks() - curTick << '\n';
+        curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++;
         for (int channel = 0; channel < channelCount; channel++){
             if (note[channel][0] != ""){
@@ -50,7 +53,8 @@ void Tile::handleInput(int posInput, bool& isRunning)
                 else if (note[channel][1] == "")
                     AudioManager::playNote(note[channel][0], channel, 0);
                 else
-                    AudioManager::playNote(note[channel][0], channel, Global::waitingTimeForSecondNote),
+                    AudioManager::playNote(note[channel][0], channel,
+                                           Global::waitingTimeForSecondNote / Global::camera.speed),
                     runSecondTimeForChannel[channel] = 1;
             }
             else if (note[channel][1] != "")
@@ -64,22 +68,23 @@ void Tile::handleInput(int posInput, bool& isRunning)
                 else if (bass[channel][1] == "")
                     AudioManager::playNote(bass[channel][0], channel + channelCount, 0);
                 else
-                    AudioManager::playNote(bass[channel][0], channel + channelCount, Global::waitingTimeForSecondNote),
+                    AudioManager::playNote(bass[channel][0], channel + channelCount,
+                                           Global::waitingTimeForSecondNote / Global::camera.speed),
                     runSecondTimeForChannel[channel + channelCount] = 1;
             }
             else if (bass[channel][1] != "")
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    else{
+    /*else{
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0, cout << "You fail because of wrong key\n";
-    }
+    }*/
 }
 
 void Tile::update(bool& isRunning)
 {
-    desR.y += Global::camera.y;
+    desR.y += Global::camera.y * Global::camera.speed;
     if (desR.y > WINDOW_HEIGHT && !touched){
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0, cout << "You fail because of untouched\n";
@@ -88,7 +93,7 @@ void Tile::update(bool& isRunning)
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0;
     }
-    for (int channel = 0; channel < channelCount * 2; channel++)//change num of channels
+    for (int channel = 0; channel < channelCount * 2; channel++)
         if (!Mix_Playing(channel) && runSecondTimeForChannel[channel]){
             if (channel < channelCount)
                 AudioManager::playNote(note[channel][1], channel, 0),

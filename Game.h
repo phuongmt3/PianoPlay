@@ -19,17 +19,17 @@ class Global;
 class Camera
 {
 public:
-    int y = 8, speed = 0;//8
+    double y = 8, speed = 1;//8
     void update()
     {
-        y += speed;
+        //y += speed;
     }
 };
 
 class AudioManager
 {
 public:
-    static Mix_Chunk* notesList[14][8];//can improve to [14][8]
+    static Mix_Chunk* notesList[14][8];
     static Mix_Chunk* winnerChunk;
     static void playNote(const string& note, int channel, int time)
     {
@@ -63,7 +63,7 @@ public:
 class Tile
 {
 private:
-    int w, h, pos;
+    int w, h, pos; static Uint32 curTick;
     const int channelCount = 4;
     bool touched = 0, runSecondTimeForChannel[6] = {0,0,0,0,0,0};
 public:

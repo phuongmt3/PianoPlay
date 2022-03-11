@@ -11,7 +11,8 @@ Mix_Chunk* AudioManager::winnerChunk;
 vector<Tile> tileList;
 int Global::tileCount;
 int Global::curTileID = 0;
-int Global::waitingTimeForSecondNote = 120;
+int Global::waitingTimeForSecondNote = 170;
+Uint32 Tile::curTick;
 
 bool isChar(char c)
 {
@@ -133,6 +134,7 @@ void handleInput(bool& isRunning){
         } break;
     default: break;
     }
+    tileList[Global::curTileID].handleInput(3, isRunning);
 }
 
 void update(bool& isRunning){
