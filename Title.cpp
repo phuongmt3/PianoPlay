@@ -35,6 +35,18 @@ void Tile::show()
         TextureManager::drawImage(Global::click, srcR, desR);
 }
 
+void pauseAllChannel(bool type, int channelCount)
+{
+    int start, en;
+    if (!type)
+        start = 0, en = channelCount;
+    else
+        start = channelCount, en = channelCount * 2;
+    for (int chan = start; chan < en; chan++)
+        if (Mix_Playing(chan))
+            Mix_Pause(chan);
+}
+
 void Tile::handleInput(int posInput, bool& isRunning)
 {
     cout << Global::curTileID << endl;
@@ -45,11 +57,8 @@ void Tile::handleInput(int posInput, bool& isRunning)
         touched = 1, Global::curTileID++;
         for (int channel = 0; channel < channelCount; channel++){
             if (note[channel][0] != ""){
-                if (note[channel][0] == "!"){
-                    for (int chan = 0; chan < channelCount; chan++)
-                        if (Mix_Playing(chan))
-                            Mix_Pause(chan);
-                }
+                if (note[channel][0] == "!")
+                    pauseAllChannel(0, channelCount);
                 else if (note[channel][1] == "")
                     AudioManager::playNote(note[channel][0], channel, 0);
                 else
@@ -60,11 +69,8 @@ void Tile::handleInput(int posInput, bool& isRunning)
             else if (note[channel][1] != "")
                 runSecondTimeForChannel[channel] = 1;
             if (bass[channel][0] != ""){
-                if (bass[channel][0] == "!"){
-                    for (int chan = 0; chan < channelCount; chan++)
-                        if (Mix_Playing(chan + channelCount))
-                            Mix_Pause(chan + channelCount);
-                }
+                if (bass[channel][0] == "!")
+                    pauseAllChannel(1, channelCount);
                 else if (bass[channel][1] == "")
                     AudioManager::playNote(bass[channel][0], channel + channelCount, 0);
                 else
@@ -84,7 +90,7 @@ void Tile::handleInput(int posInput, bool& isRunning)
 
 void Tile::update(bool& isRunning)
 {
-    desR.y += Global::camera.y * Global::camera.speed;
+    desR.y += int(Global::camera.y * Global::camera.speed);
     if (desR.y > WINDOW_HEIGHT && !touched){
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0, cout << "You fail because of untouched\n";
@@ -93,13 +99,38 @@ void Tile::update(bool& isRunning)
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0;
     }
-    for (int channel = 0; channel < channelCount * 2; channel++)
+    for (int channel = 0; channel < channelCount * 2; channel++){
         if (!Mix_Playing(channel) && runSecondTimeForChannel[channel]){
-            if (channel < channelCount)
-                AudioManager::playNote(note[channel][1], channel, 0),
-                runSecondTimeForChannel[channel] = 0;
-            else
-                AudioManager::playNote(bass[channel - channelCount][1], channel, 0),
-                runSecondTimeForChannel[channel] = 0;
+            if (channel < channelCount){
+                if (note[channel][1] == "!")
+                    pauseAllChannel(0, channelCount);
+                else
+                    AudioManager::playNote(note[channel][1], channel, 0),
+                    runSecondTimeForChannel[channel] = 0;
+            }
+            else{
+                if (note[channel - channelCount][1] == "!")
+                    pauseAllChannel(1, channelCount);
+                else
+                    AudioManager::playNote(note[channel - channelCount][1], channel, 0),
+                    runSecondTimeForChannel[channel] = 0;
+            }
         }
+        else if (runSecondTimeForChannel[channel] && SDL_GetTicks() - curTick >= Global::waitingTimeForSecondNote){
+            if (channel < channelCount && note[channel][0] == ""){
+                if (note[channel][1] == "!")
+                    pauseAllChannel(0, channelCount);
+                else
+                    AudioManager::playNote(note[channel][1], channel, 0),
+                    runSecondTimeForChannel[channel] = 0, cout<<"4_4\n";
+            }
+            else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
+                if (note[channel - channelCount][1] == "!")
+                    pauseAllChannel(1, channelCount);
+                else
+                    AudioManager::playNote(note[channel - channelCount][1], channel, 0),
+                    runSecondTimeForChannel[channel] = 0;
+            }
+        }
+    }
 }

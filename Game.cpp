@@ -11,7 +11,7 @@ Mix_Chunk* AudioManager::winnerChunk;
 vector<Tile> tileList;
 int Global::tileCount;
 int Global::curTileID = 0;
-int Global::waitingTimeForSecondNote = 170;
+int Global::waitingTimeForSecondNote = 180;
 Uint32 Tile::curTick;
 
 bool isChar(char c)
@@ -23,7 +23,11 @@ bool isChar(char c)
 
 void addTile()//a,b: a with b; a-b: a before b
 {
-    ifstream fin("PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt");
+    string song[] = {
+        "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
+        "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
+        "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt"};
+    ifstream fin(song[2]);
     fin >> Global::tileCount;
     //Global::tileCount = 5;
     string s;
@@ -44,7 +48,6 @@ void addTile()//a,b: a with b; a-b: a before b
                     while (!isChar(s[pos]) && pos < int(s.length()))
                         note += s[pos], pos++;
                     curTile->setNote(note,channel,isSecond,bass);
-                    isSecond = 0;
                 }
                 else if (s[pos] == '-'){
                     isSecond = 1; pos++;
@@ -53,7 +56,7 @@ void addTile()//a,b: a with b; a-b: a before b
                     channel++; pos++;
                 }
             }
-            pos++;
+            pos++; isSecond = 0;
         }
     }
 }
