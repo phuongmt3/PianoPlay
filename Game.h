@@ -19,7 +19,7 @@ class Global;
 class Camera
 {
 public:
-    double y = 8, speed = 2;
+    double y = 8, speed = 1.5;
     void update()
     {
         //y += speed;
@@ -65,7 +65,7 @@ class Tile
 private:
     int w, h, pos; static Uint32 curTick;
     const int channelCount = 4;
-    bool touched = 0, runSecondTimeForChannel[6] = {0,0,0,0,0,0};
+    bool touched = 0, runSecondTimeForChannel[8] = {0,0,0,0,0,0,0,0};//channelCount
 public:
     SDL_Rect srcR, desR;
     string note[4][2];//~channelCount

@@ -11,7 +11,9 @@ map<int, string> key0up, key0down, key1up, key1down;
 
 void setUpDown()//change manually based on the song
 {
-    down[0] = down[1] = down[4] = 1;
+    //down[0] = down[1] =
+    //down[1] = 1;
+    up[2] = up[5] = up[0] = up[3] = up[6] = 1;
 }
 
 void init()

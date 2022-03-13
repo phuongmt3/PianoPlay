@@ -49,7 +49,7 @@ void pauseAllChannel(bool type, int channelCount)
 
 void Tile::handleInput(int posInput, bool& isRunning)
 {
-    cout << Global::curTileID << endl;
+    cout << Global::curTileID << '\n';
     //if (posInput == pos){
     if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
@@ -99,38 +99,41 @@ void Tile::update(bool& isRunning)
         AudioManager::playNote("A0", 0, 0);
         isRunning = 0;
     }
-    for (int channel = 0; channel < channelCount * 2; channel++){
-        if (!Mix_Playing(channel) && runSecondTimeForChannel[channel]){
-            if (channel < channelCount){
-                if (note[channel][1] == "!")
-                    pauseAllChannel(0, channelCount);
-                else
-                    AudioManager::playNote(note[channel][1], channel, 0),
-                    runSecondTimeForChannel[channel] = 0;
+    for (int channel = 0; channel < channelCount * 2; channel++)
+        if (runSecondTimeForChannel[channel]){
+            if (!Mix_Playing(channel)){
+                    //cout << "pos0 not !  " << channel << endl;
+                if (channel < channelCount){
+                    if (note[channel][1] == "!")
+                        pauseAllChannel(0, channelCount);
+                    else
+                        AudioManager::playNote(note[channel][1], channel, 0);
+                    runSecondTimeForChannel[channel] = 0; cout << note[channel][1] << '\n';
+                }
+                else{
+                    if (bass[channel - channelCount][1] == "!")
+                        pauseAllChannel(1, channelCount);
+                    else
+                        AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
+                    runSecondTimeForChannel[channel] = 0;cout << bass[channel - channelCount][1] << '\n';
+                }
             }
-            else{
-                if (note[channel - channelCount][1] == "!")
-                    pauseAllChannel(1, channelCount);
-                else
-                    AudioManager::playNote(note[channel - channelCount][1], channel, 0),
-                    runSecondTimeForChannel[channel] = 0;
+            else if (SDL_GetTicks() - curTick >= int(Global::waitingTimeForSecondNote / Global::camera.speed)){
+                //cout << "stop channel  " <<  channel << endl;
+                if (channel < channelCount && note[channel][0] == ""){
+                    if (note[channel][1] == "!")
+                        pauseAllChannel(0, channelCount);
+                    else
+                        AudioManager::playNote(note[channel][1], channel, 0);
+                    runSecondTimeForChannel[channel] = 0;cout << note[channel][1] << '\n';
+                }
+                else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
+                    if (bass[channel - channelCount][1] == "!")
+                        pauseAllChannel(1, channelCount);
+                    else
+                        AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
+                    runSecondTimeForChannel[channel] = 0;cout << bass[channel - channelCount][1] << '\n';
+                }
             }
-        }
-        else if (runSecondTimeForChannel[channel] && SDL_GetTicks() - curTick >= Global::waitingTimeForSecondNote){
-            if (channel < channelCount && note[channel][0] == ""){
-                if (note[channel][1] == "!")
-                    pauseAllChannel(0, channelCount);
-                else
-                    AudioManager::playNote(note[channel][1], channel, 0),
-                    runSecondTimeForChannel[channel] = 0, cout<<"4_4\n";
-            }
-            else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
-                if (note[channel - channelCount][1] == "!")
-                    pauseAllChannel(1, channelCount);
-                else
-                    AudioManager::playNote(note[channel - channelCount][1], channel, 0),
-                    runSecondTimeForChannel[channel] = 0;
-            }
-        }
     }
 }

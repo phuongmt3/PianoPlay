@@ -50,7 +50,7 @@ void addTile()//a,b: a with b; a-b: a before b
                     curTile->setNote(note,channel,isSecond,bass);
                 }
                 else if (s[pos] == '-'){
-                    isSecond = 1; pos++;
+                    isSecond = 1; pos++; channel = 0;
                 }
                 else if (s[pos] == '+'){//currently +/- only
                     channel++; pos++;
