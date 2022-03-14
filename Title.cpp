@@ -47,11 +47,11 @@ void pauseAllChannel(bool type, int channelCount)
             Mix_Pause(chan);
 }
 
-void Tile::handleInput(int posInput, bool& isRunning)
+void Tile::handleInput(int posInput, int& fail)
 {
     cout << Global::curTileID << '\n';
-    //if (posInput == pos){
-    if (desR.y > 500 && !touched){
+    if (posInput == pos && desR.y + h >= 0){
+    //if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++;
@@ -82,57 +82,58 @@ void Tile::handleInput(int posInput, bool& isRunning)
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    /*else{
+    else{
         AudioManager::playNote("A0", 0, 0);
-        isRunning = 0, cout << "You fail because of wrong key\n";
-    }*/
+        fail = 1, cout << "You fail because of wrong key\n";
+        Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
+    }
 }
 
-void Tile::update(bool& isRunning)
+void Tile::update(int& fail, int gobackLength)
 {
+    if (fail){
+        desR.y -= gobackLength;
+        return;
+    }
     desR.y += int(Global::camera.y * Global::camera.speed);
     if (desR.y > WINDOW_HEIGHT && !touched){
         AudioManager::playNote("A0", 0, 0);
-        isRunning = 0, cout << "You fail because of untouched\n";
-    }
-    else if (desR.y + h < 0 && touched){
-        AudioManager::playNote("A0", 0, 0);
-        isRunning = 0;
+        fail = 1, cout << "You fail because of untouched\n";
+        Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
+        desR.y -= (gobackLength + int(Global::camera.y * Global::camera.speed));
     }
     for (int channel = 0; channel < channelCount * 2; channel++)
         if (runSecondTimeForChannel[channel]){
             if (!Mix_Playing(channel)){
-                    //cout << "pos0 not !  " << channel << endl;
                 if (channel < channelCount){
                     if (note[channel][1] == "!")
                         pauseAllChannel(0, channelCount);
                     else
                         AudioManager::playNote(note[channel][1], channel, 0);
-                    runSecondTimeForChannel[channel] = 0; cout << note[channel][1] << '\n';
+                    runSecondTimeForChannel[channel] = 0;
                 }
                 else{
                     if (bass[channel - channelCount][1] == "!")
                         pauseAllChannel(1, channelCount);
                     else
                         AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
-                    runSecondTimeForChannel[channel] = 0;cout << bass[channel - channelCount][1] << '\n';
+                    runSecondTimeForChannel[channel] = 0;
                 }
             }
             else if (SDL_GetTicks() - curTick >= int(Global::waitingTimeForSecondNote / Global::camera.speed)){
-                //cout << "stop channel  " <<  channel << endl;
                 if (channel < channelCount && note[channel][0] == ""){
                     if (note[channel][1] == "!")
                         pauseAllChannel(0, channelCount);
                     else
                         AudioManager::playNote(note[channel][1], channel, 0);
-                    runSecondTimeForChannel[channel] = 0;cout << note[channel][1] << '\n';
+                    runSecondTimeForChannel[channel] = 0;
                 }
                 else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
                     if (bass[channel - channelCount][1] == "!")
                         pauseAllChannel(1, channelCount);
                     else
                         AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
-                    runSecondTimeForChannel[channel] = 0;cout << bass[channel - channelCount][1] << '\n';
+                    runSecondTimeForChannel[channel] = 0;
                 }
             }
     }

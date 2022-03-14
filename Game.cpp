@@ -10,7 +10,7 @@ Mix_Chunk* AudioManager::winnerChunk;
 
 vector<Tile> tileList;
 int Global::tileCount;
-int Global::curTileID = 0;
+int Global::curTileID = 0, Global::lastSeenID = 0;
 int Global::waitingTimeForSecondNote = 180;
 Uint32 Tile::curTick;
 
@@ -52,7 +52,7 @@ void addTile()//a,b: a with b; a-b: a before b
                 else if (s[pos] == '-'){
                     isSecond = 1; pos++; channel = 0;
                 }
-                else if (s[pos] == '+'){//currently +/- only
+                else if (s[pos] == '+'){
                     channel++; pos++;
                 }
             }
@@ -76,12 +76,12 @@ void addNote()
 
 void showTile()
 {
-    for (int i = 0; i < Global::tileCount; i++)
+    for (int i = Global::lastSeenID; i < Global::tileCount; i++)
         tileList[i].show();
 }
 
 void init(const char* title, int xpos, int ypos,
-              int width, int height, bool fullscreen, bool& isRunning){
+              int width, int height, bool fullscreen, bool& isRunning, int& fail){
     int flag = 0;
     if (fullscreen)
         flag = SDL_WINDOW_FULLSCREEN;
@@ -100,6 +100,7 @@ void init(const char* title, int xpos, int ypos,
         isRunning = 1;
     }
     else isRunning = 0;
+    Global::camera.stop = 1; fail = 0;
     Global::click = TextureManager::takeTexture("PianoPlay/pianoHub/tileTouched.png");
     Global::unclick = TextureManager::takeTexture("PianoPlay/pianoHub/tileUntouched.png");
     Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
@@ -108,7 +109,7 @@ void init(const char* title, int xpos, int ypos,
     addTile();
 }
 
-void render(){
+void render(int& fail){
     SDL_RenderClear(Global::renderer);
     SDL_Rect srcR = {0,0,1080,2052}, desR = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
     TextureManager::drawImage(Global::bg, srcR, desR);
@@ -116,7 +117,7 @@ void render(){
     SDL_RenderPresent(Global::renderer);
 }
 
-void handleInput(bool& isRunning){
+void handleInput(bool& isRunning, int& fail){
     SDL_PollEvent(&event);
     switch(event.type)
     {
@@ -126,26 +127,40 @@ void handleInput(bool& isRunning){
         switch(event.key.keysym.sym)
         {
         case SDLK_f:
-            tileList[Global::curTileID].handleInput(0, isRunning); break;
+            tileList[Global::curTileID].handleInput(0, fail); break;
         case SDLK_g:
-            tileList[Global::curTileID].handleInput(1, isRunning); break;
+            tileList[Global::curTileID].handleInput(1, fail); break;
         case SDLK_h:
-            tileList[Global::curTileID].handleInput(2, isRunning); break;
+            tileList[Global::curTileID].handleInput(2, fail); break;
         case SDLK_j:
-            tileList[Global::curTileID].handleInput(3, isRunning); break;
+            tileList[Global::curTileID].handleInput(3, fail); break;
+        case SDLK_SPACE:
+        {
+            if (Global::camera.stop)
+                Global::camera.stop = 0;
+            else
+                Global::camera.stop = 1;
+        }
+        break;
+        case SDLK_ESCAPE:
+            isRunning = 0; break;
         default: break;
         } break;
     default: break;
     }
-    tileList[Global::curTileID].handleInput(3, isRunning);
+    //tileList[Global::curTileID].handleInput(3, fail);
 }
 
-void update(bool& isRunning){
+void update(bool& isRunning, int& fail){
     Global::camera.update();
-    for (int i = 0; i < Global::tileCount; i++)
-        tileList[i].update(isRunning);
-    if (Global::curTileID == Global::tileCount
-        && tileList[Global::curTileID - 1].desR.y > WINDOW_HEIGHT){
+    int goback = tileList[Global::curTileID].desR.y +
+                    tileList[Global::curTileID].desR.h;
+    for (int i = Global::lastSeenID; i < Global::tileCount; i++)
+        tileList[i].update(fail, goback);
+    if (tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
+        tileList[Global::lastSeenID].hadTouched())
+        Global::lastSeenID++;
+    if (Global::lastSeenID >= Global::tileCount){
         isRunning = 0; cout << "You are winner!\n";
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
     }

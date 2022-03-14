@@ -20,9 +20,12 @@ class Camera
 {
 public:
     double y = 8, speed = 1.5;
+    bool stop;
     void update()
     {
-        //y += speed;
+        if (stop)
+            y = 0;
+        else y = 8;
     }
 };
 
@@ -73,26 +76,28 @@ public:
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, bool isSecond, int isBass);
     void show();
-    void handleInput(int posInput, bool& isRunning);
-    void update(bool& isRunning);
+    void handleInput(int posInput, int& fail);
+    void update(int& fail, int gobackLength);
     int takePos(){
         return pos;
     }
-
+    bool hadTouched(){
+        return touched;
+    }
 };
 
 void init(const char* title, int xpos, int ypos,
-              int width, int height, bool fullscreen, bool& isRunning);
-void render();
-void handleInput(bool& isRunning);
-void update(bool& isRunning);
+              int width, int height, bool fullscreen, bool& isRunning, int& fail);
+void render(int& fail);
+void handleInput(bool& isRunning, int& fail);
+void update(bool& isRunning, int& fail);
 void clean();
 
 class Global
 {
 public:
     static SDL_Renderer* renderer;
-    static int curTileID, tileCount;
+    static int curTileID, tileCount, lastSeenID;
     static SDL_Texture *click, *unclick, *bg;
     static Camera camera;
     static int waitingTimeForSecondNote;
