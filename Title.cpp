@@ -6,9 +6,8 @@ Tile::Tile(int width, int height, int stt, int prePos)
     pos = rand()%4;
     if (pos == prePos)
         pos = (pos + 1)%4;
-    srcR.h = desR.h = h;
-    srcR.w = desR.w = w;
-    srcR.x = srcR.y = 0;
+    desR.h = h;
+    desR.w = w;
     desR.x = pos * w;
     desR.y = -h - stt * h;
 }
@@ -29,10 +28,14 @@ void Tile::setNote(string _note, int channel, bool isSecond, int isBass)
 
 void Tile::show()
 {
-    if (!touched)
-        TextureManager::drawImage(Global::unclick, srcR, desR);
-    else
-        TextureManager::drawImage(Global::click, srcR, desR);
+    if (!touched){
+        SDL_SetRenderDrawColor(Global::renderer,255,255,255,255);
+        SDL_RenderFillRect(Global::renderer, &desR);
+    }
+    else{
+        SDL_SetRenderDrawColor(Global::renderer,255,255,255,150);
+        SDL_RenderFillRect(Global::renderer, &desR);
+    }
 }
 
 void pauseAllChannel(bool type, int channelCount)
@@ -86,6 +89,8 @@ void Tile::handleInput(int posInput, int& fail)
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
+        Global::showWrongKey = 1;
+        Global::wrongRect = {posInput * w, desR.y, w, h};
     }
 }
 

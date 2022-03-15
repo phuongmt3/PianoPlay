@@ -12,7 +12,7 @@
 #include "SDL_mixer.h"
 using namespace std;//currently resources is not sync, change link variable
 
-const int WINDOW_WIDTH = 600;
+const int WINDOW_WIDTH = 500;
 const int WINDOW_HEIGHT = 800;
 
 class Global;
@@ -70,7 +70,7 @@ private:
     const int channelCount = 4;
     bool touched = 0, runSecondTimeForChannel[8] = {0,0,0,0,0,0,0,0};//channelCount
 public:
-    SDL_Rect srcR, desR;
+    SDL_Rect desR;
     string note[4][2];//~channelCount
     string bass[4][2];
     Tile(int width, int height, int stt, int prePos);
@@ -98,8 +98,10 @@ class Global
 public:
     static SDL_Renderer* renderer;
     static int curTileID, tileCount, lastSeenID;
-    static SDL_Texture *click, *unclick, *bg;
+    static SDL_Texture *bg;
     static Camera camera;
     static int waitingTimeForSecondNote;
+    static SDL_Rect wrongRect;
+    static bool showWrongKey;
 };
 #endif // GAME_H_INCLUDED

@@ -18,6 +18,8 @@ int main(int argc, char* argv[])
         int framePeriod = SDL_GetTicks() - startTime;
         if (framePeriod < secPerFrame)
             SDL_Delay(secPerFrame - framePeriod);
+        if (!isRunning)
+            SDL_Delay(1000);
     }while (isRunning);
     clean();
     return 0;

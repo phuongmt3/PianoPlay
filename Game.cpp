@@ -3,12 +3,14 @@
 SDL_Window* window;
 SDL_Renderer* Global::renderer;
 SDL_Event event;//why event cannot be a pointer
-SDL_Texture *Global::click, *Global::unclick, *Global::bg;
+SDL_Texture *Global::bg;
 Camera Global::camera;
 Mix_Chunk* AudioManager::notesList[14][8];
 Mix_Chunk* AudioManager::winnerChunk;
 
 vector<Tile> tileList;
+SDL_Rect Global::wrongRect;
+bool Global::showWrongKey = 0;
 int Global::tileCount;
 int Global::curTileID = 0, Global::lastSeenID = 0;
 int Global::waitingTimeForSecondNote = 180;
@@ -34,9 +36,9 @@ void addTile()//a,b: a with b; a-b: a before b
     for (int i = 0; i < Global::tileCount; i++){
         fin >> s;
         if (i > 0)
-            tileList.push_back(Tile(150,200,i,tileList[i - 1].takePos()));
+            tileList.push_back(Tile(WINDOW_WIDTH/4,WINDOW_HEIGHT/4,i,tileList[i - 1].takePos()));
         else
-            tileList.push_back(Tile(150,200,i,4));
+            tileList.push_back(Tile(WINDOW_WIDTH/4,WINDOW_HEIGHT/4,i,4));
         Tile* curTile = &tileList.back();
         int pos = 0, channel = 0;
         bool isSecond = 0;//2 note lien tiep
@@ -76,8 +78,10 @@ void addNote()
 
 void showTile()
 {
-    for (int i = Global::lastSeenID; i < Global::tileCount; i++)
+    for (int i = Global::lastSeenID; i < Global::tileCount &&
+                                    i < Global::lastSeenID + 5; i++)
         tileList[i].show();
+
 }
 
 void init(const char* title, int xpos, int ypos,
@@ -92,6 +96,7 @@ void init(const char* title, int xpos, int ypos,
             cout << "Created window!\n";
         }
         Global::renderer = SDL_CreateRenderer(window, -1, 0);
+        SDL_SetRenderDrawBlendMode(Global::renderer,SDL_BLENDMODE_BLEND);
         if (Global::renderer)
             cout << "Created renderer\n";
         else cout << "Cannot create renderer\n";
@@ -101,8 +106,6 @@ void init(const char* title, int xpos, int ypos,
     }
     else isRunning = 0;
     Global::camera.stop = 1; fail = 0;
-    Global::click = TextureManager::takeTexture("PianoPlay/pianoHub/tileTouched.png");
-    Global::unclick = TextureManager::takeTexture("PianoPlay/pianoHub/tileUntouched.png");
     Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addNote();
@@ -111,6 +114,12 @@ void init(const char* title, int xpos, int ypos,
 
 void render(int& fail){
     if (fail == 1){
+        if (Global::showWrongKey){
+            SDL_SetRenderDrawColor(Global::renderer,235,154,154,255);
+            SDL_RenderFillRect(Global::renderer, &Global::wrongRect);
+            SDL_RenderPresent(Global::renderer);
+            Global::showWrongKey = 0;
+        }
         SDL_Delay(3000);
         fail = 2;
     }
