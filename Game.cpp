@@ -110,6 +110,10 @@ void init(const char* title, int xpos, int ypos,
 }
 
 void render(int& fail){
+    if (fail == 1){
+        SDL_Delay(3000);
+        fail = 2;
+    }
     SDL_RenderClear(Global::renderer);
     SDL_Rect srcR = {0,0,1080,2052}, desR = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
     TextureManager::drawImage(Global::bg, srcR, desR);
@@ -127,19 +131,25 @@ void handleInput(bool& isRunning, int& fail){
         switch(event.key.keysym.sym)
         {
         case SDLK_f:
-            tileList[Global::curTileID].handleInput(0, fail); break;
+            if (!fail) tileList[Global::curTileID].handleInput(0, fail);
+            break;
         case SDLK_g:
-            tileList[Global::curTileID].handleInput(1, fail); break;
+            if (!fail) tileList[Global::curTileID].handleInput(1, fail);
+            break;
         case SDLK_h:
-            tileList[Global::curTileID].handleInput(2, fail); break;
+            if (!fail) tileList[Global::curTileID].handleInput(2, fail);
+            break;
         case SDLK_j:
-            tileList[Global::curTileID].handleInput(3, fail); break;
+            if (!fail) tileList[Global::curTileID].handleInput(3, fail);
+            break;
         case SDLK_SPACE:
         {
             if (Global::camera.stop)
                 Global::camera.stop = 0;
             else
                 Global::camera.stop = 1;
+            if (fail)
+                fail = 0;
         }
         break;
         case SDLK_ESCAPE:
