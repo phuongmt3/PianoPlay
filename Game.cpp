@@ -3,7 +3,7 @@
 SDL_Window* window;
 SDL_Renderer* Global::renderer;
 SDL_Event event;//why event cannot be a pointer
-SDL_Texture *Global::bg;
+SDL_Texture *Global::bg, *Global::gameBg;
 Camera Global::camera;
 Mix_Chunk* AudioManager::notesList[14][8];
 Mix_Chunk* AudioManager::winnerChunk;
@@ -23,22 +23,24 @@ bool isChar(char c)
     return 0;
 }
 
-void addTile()//a,b: a with b; a-b: a before b
+void addTile()
 {
     string song[] = {
         "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
         "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
-        "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt"};
-    ifstream fin(song[2]);
+        "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt",
+        "PianoPlay/pianoHub/ToLove'sEnd_Inuyasa.txt",
+        "PianoPlay/pianoHub/draft.txt"};
+    ifstream fin(song[3]);
     fin >> Global::tileCount;
     //Global::tileCount = 5;
     string s;
     for (int i = 0; i < Global::tileCount; i++){
         fin >> s;
         if (i > 0)
-            tileList.push_back(Tile(WINDOW_WIDTH/4,WINDOW_HEIGHT/4,i,tileList[i - 1].takePos()));
+            tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,tileList[i - 1].takePos()));
         else
-            tileList.push_back(Tile(WINDOW_WIDTH/4,WINDOW_HEIGHT/4,i,4));
+            tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4));
         Tile* curTile = &tileList.back();
         int pos = 0, channel = 0;
         bool isSecond = 0;//2 note lien tiep
@@ -102,11 +104,14 @@ void init(const char* title, int xpos, int ypos,
         else cout << "Cannot create renderer\n";
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
             printf("%s", Mix_GetError());
+        if (TTF_Init() == -1)
+            printf("TTF_Init: %s\n", TTF_GetError());
         isRunning = 1;
     }
     else isRunning = 0;
     Global::camera.stop = 1; fail = 0;
-    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
+    Global::gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
+    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/galaxy.jpg");
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addNote();
     addTile();
@@ -115,7 +120,7 @@ void init(const char* title, int xpos, int ypos,
 void render(int& fail){
     if (fail == 1){
         if (Global::showWrongKey){
-            SDL_SetRenderDrawColor(Global::renderer,235,154,154,255);
+            SDL_SetRenderDrawColor(Global::renderer,255,13,13,255);
             SDL_RenderFillRect(Global::renderer, &Global::wrongRect);
             SDL_RenderPresent(Global::renderer);
             Global::showWrongKey = 0;
@@ -124,8 +129,12 @@ void render(int& fail){
         fail = 2;
     }
     SDL_RenderClear(Global::renderer);
-    SDL_Rect srcR = {0,0,1080,2052}, desR = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
-    TextureManager::drawImage(Global::bg, srcR, desR);
+    SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH/2 - GAME_WIDTH/2,
+                                                    WINDOW_HEIGHT/2 - GAME_HEIGHT/2,
+                                                    GAME_WIDTH,GAME_HEIGHT};
+    SDL_Rect srcRBg = {0,0,1920,1282}, desRBg = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
+    TextureManager::drawImage(Global::bg, srcRBg, desRBg);
+    TextureManager::drawImage(Global::gameBg, srcRGame, desRGame);
     showTile();
     SDL_RenderPresent(Global::renderer);
 }
@@ -140,20 +149,24 @@ void handleInput(bool& isRunning, int& fail){
         switch(event.key.keysym.sym)
         {
         case SDLK_f:
-            if (!fail) tileList[Global::curTileID].handleInput(0, fail);
+            if (!fail && !Global::camera.stop)
+                tileList[Global::curTileID].handleInput(0, fail);
             break;
         case SDLK_g:
-            if (!fail) tileList[Global::curTileID].handleInput(1, fail);
+            if (!fail && !Global::camera.stop)
+                tileList[Global::curTileID].handleInput(1, fail);
             break;
         case SDLK_h:
-            if (!fail) tileList[Global::curTileID].handleInput(2, fail);
+            if (!fail && !Global::camera.stop)
+                tileList[Global::curTileID].handleInput(2, fail);
             break;
         case SDLK_j:
-            if (!fail) tileList[Global::curTileID].handleInput(3, fail);
+            if (!fail && !Global::camera.stop)
+                tileList[Global::curTileID].handleInput(3, fail);
             break;
         case SDLK_SPACE:
         {
-            if (Global::camera.stop)
+            if (Global::camera.stop && !fail)
                 Global::camera.stop = 0;
             else
                 Global::camera.stop = 1;
@@ -167,7 +180,7 @@ void handleInput(bool& isRunning, int& fail){
         } break;
     default: break;
     }
-    //tileList[Global::curTileID].handleInput(3, fail);
+    tileList[Global::curTileID].handleInput(3, fail);
 }
 
 void update(bool& isRunning, int& fail){
@@ -182,6 +195,7 @@ void update(bool& isRunning, int& fail){
     if (Global::lastSeenID >= Global::tileCount){
         isRunning = 0; cout << "You are winner!\n";
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
+        SDL_Delay(1000);
     }
 }
 

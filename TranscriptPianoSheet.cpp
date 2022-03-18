@@ -4,16 +4,21 @@
 #include <map>
 using namespace std;
 
-int n, base[2] = {4, 3};
-bool down[7], up[7];//chua xu ly up
+int n, base[2] = {4, 3};//default: 4,3
+bool down[7], up[7];
 map<int, string> key0, key1;
 map<int, string> key0up, key0down, key1up, key1down;
+string s;
+
+string songName = "ToLove'sEnd_Inuyasa";
+ifstream fin("Raw_" + songName + ".txt");
+ofstream fout(songName + ".txt");
 
 void setUpDown()//change manually based on the song
 {
-    //down[0] = down[1] =
+    down[4] = down[1] = 1;
     //down[1] = 1;
-    up[2] = up[5] = up[0] = up[3] = up[6] = 1;
+    //up[2] = up[5] = up[0] = up[3] = up[6] = 1;
 }
 
 void init()
@@ -46,25 +51,12 @@ bool isNum(char c)
     return 1;
 }
 
-int main()
+void runNote(int& pos)
 {
-    string songName = "YoruNiKakeru_Yoasobi";
-    ifstream fin("Raw_" + songName + ".txt");
-    ofstream fout(songName + ".txt");
-    if (!fin.is_open()){
-        cout << "file cannot open";
-        return 0;
-    }
-    fin >> n; fout << n << '\n';
-    setUpDown(); init();
-    for (int i = 0; i < n; i++){
-        string s; fin >> s;
-        int num = 0;
-        int pos = 0;
-        while (s[pos] != ',' && pos < s.length()){//range = [-45,145]
+    while (s[pos] != ',' && pos < s.length()){//range = [-45,145]
             //translate first channel
             if (isNum(s[pos])){
-                num = 0; int cntChar = 0; bool sign = 1, u = 0, d = 0, norm = 0;
+                int num = 0, cntChar = 0; bool sign = 1, u = 0, d = 0, norm = 0;
                 while (isNum(s[pos]) && pos < s.length()){
                     if (s[pos] == 'a')
                         sign = 0;
@@ -101,10 +93,13 @@ int main()
             else
                 fout << s[pos], pos++;
         }
-        fout << s[pos]; pos++;
-        while (pos < s.length()){
+}
+
+void runBass(int& pos)
+{
+    while (pos < s.length()){
             if (isNum(s[pos])){
-                num = 0; int cntChar = 0; bool sign = 1, u = 0, d = 0, norm = 0;
+                int num = 0, cntChar = 0; bool sign = 1, u = 0, d = 0, norm = 0;
                 while (isNum(s[pos]) && pos < s.length()){
                     if (s[pos] == 'a')
                         sign = 0;
@@ -141,6 +136,25 @@ int main()
             else
                 fout << s[pos], pos++;
         }
+}
+
+int main()
+{
+
+    if (!fin.is_open()){
+        cout << "file cannot open";
+        return 0;
+    }
+    fin >> n; fout << n << '\n';
+    setUpDown(); init();
+    for (int i = 0; i < n; i++){
+        fin >> s;
+        int num = 0;
+        int pos = 0;
+        runNote(pos);
+        fout << s[pos]; pos++;
+        //runNote(pos);
+        runBass(pos);
         fout << '\n';
     }
 }

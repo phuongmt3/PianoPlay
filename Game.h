@@ -10,10 +10,13 @@
 #include <string>
 #include "SDL_image.h"
 #include "SDL_mixer.h"
+#include "SDL_ttf.h"
 using namespace std;//currently resources is not sync, change link variable
 
-const int WINDOW_WIDTH = 500;
-const int WINDOW_HEIGHT = 800;
+const int WINDOW_WIDTH = 1000;
+const int WINDOW_HEIGHT = 900;
+const int GAME_WIDTH = 500;
+const int GAME_HEIGHT = 900;
 
 class Global;
 class Camera
@@ -27,6 +30,21 @@ public:
             y = 0;
         else y = 8;
     }
+};
+
+class Text
+{
+private:
+    SDL_Color textColor = {255,255,255};
+    TTF_Font *gFont = TTF_OpenFont("TTFfonts/Fine College.ttf", 1000);
+    string text;
+public:
+    Text();
+    Text(string _text, int font =-1, int color =-1);
+    void updateText(string newText);
+    void updateFont(int font);
+    void updateColor(int color);
+    void show();
 };
 
 class AudioManager
@@ -98,7 +116,7 @@ class Global
 public:
     static SDL_Renderer* renderer;
     static int curTileID, tileCount, lastSeenID;
-    static SDL_Texture *bg;
+    static SDL_Texture *bg, *gameBg;
     static Camera camera;
     static int waitingTimeForSecondNote;
     static SDL_Rect wrongRect;

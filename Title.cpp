@@ -8,8 +8,8 @@ Tile::Tile(int width, int height, int stt, int prePos)
         pos = (pos + 1)%4;
     desR.h = h;
     desR.w = w;
-    desR.x = pos * w;
-    desR.y = -h - stt * h;
+    desR.x = pos * w + WINDOW_WIDTH/2 - GAME_WIDTH/2;
+    desR.y = -h - stt * h + WINDOW_HEIGHT/2 - GAME_HEIGHT/2;
 }
 
 void Tile::setNote(string _note, int channel, bool isSecond, int isBass)
@@ -53,8 +53,8 @@ void pauseAllChannel(bool type, int channelCount)
 void Tile::handleInput(int posInput, int& fail)
 {
     cout << Global::curTileID << '\n';
-    if (posInput == pos && desR.y + h >= 0){
-    //if (desR.y > 500 && !touched){
+    //if (posInput == pos && desR.y + h >= 0){
+    if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++;
@@ -85,13 +85,13 @@ void Tile::handleInput(int posInput, int& fail)
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    else{
+    /*else{
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         Global::showWrongKey = 1;
-        Global::wrongRect = {posInput * w, desR.y, w, h};
-    }
+        Global::wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
+    }*/
 }
 
 void Tile::update(int& fail, int gobackLength)
@@ -101,7 +101,7 @@ void Tile::update(int& fail, int gobackLength)
         return;
     }
     desR.y += int(Global::camera.y * Global::camera.speed);
-    if (desR.y > WINDOW_HEIGHT && !touched){
+    if (desR.y > GAME_HEIGHT && !touched){
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of untouched\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
