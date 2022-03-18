@@ -12,9 +12,11 @@ vector<Tile> tileList;
 SDL_Rect Global::wrongRect;
 bool Global::showWrongKey = 0;
 int Global::tileCount;
-int Global::curTileID = 0, Global::lastSeenID = 0;
+int Global::curTileID = 0, Global::lastSeenID = 0, Global::score = 0;
 int Global::waitingTimeForSecondNote = 180;
 Uint32 Tile::curTick;
+
+Text SCORETxt, scoreTxt;
 
 bool isChar(char c)
 {
@@ -111,10 +113,15 @@ void init(const char* title, int xpos, int ypos,
     else isRunning = 0;
     Global::camera.stop = 1; fail = 0;
     Global::gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
-    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/galaxy.jpg");
+    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png");
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addNote();
     addTile();
+    SCORETxt = Text("Score",20,20,200,100);
+    string test = "0";
+    scoreTxt = Text(test,20,150,200/4*(int)test.length(),100);
+    SCORETxt.updateTexture();
+    scoreTxt.updateTexture();
 }
 
 void render(int& fail){
@@ -132,10 +139,11 @@ void render(int& fail){
     SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH/2 - GAME_WIDTH/2,
                                                     WINDOW_HEIGHT/2 - GAME_HEIGHT/2,
                                                     GAME_WIDTH,GAME_HEIGHT};
-    SDL_Rect srcRBg = {0,0,1920,1282}, desRBg = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
+    SDL_Rect srcRBg = {0,0,1000,900}, desRBg = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
     TextureManager::drawImage(Global::bg, srcRBg, desRBg);
     TextureManager::drawImage(Global::gameBg, srcRGame, desRGame);
     showTile();
+    SCORETxt.show(); scoreTxt.show();
     SDL_RenderPresent(Global::renderer);
 }
 
@@ -150,19 +158,19 @@ void handleInput(bool& isRunning, int& fail){
         {
         case SDLK_f:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(0, fail);
+                tileList[Global::curTileID].handleInput(0, fail, scoreTxt);
             break;
         case SDLK_g:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(1, fail);
+                tileList[Global::curTileID].handleInput(1, fail, scoreTxt);
             break;
         case SDLK_h:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(2, fail);
+                tileList[Global::curTileID].handleInput(2, fail, scoreTxt);
             break;
         case SDLK_j:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(3, fail);
+                tileList[Global::curTileID].handleInput(3, fail, scoreTxt);
             break;
         case SDLK_SPACE:
         {
@@ -180,7 +188,7 @@ void handleInput(bool& isRunning, int& fail){
         } break;
     default: break;
     }
-    tileList[Global::curTileID].handleInput(3, fail);
+    tileList[Global::curTileID].handleInput(3, fail, scoreTxt);
 }
 
 void update(bool& isRunning, int& fail){
@@ -188,7 +196,7 @@ void update(bool& isRunning, int& fail){
     int goback = tileList[Global::curTileID].desR.y +
                     tileList[Global::curTileID].desR.h;
     for (int i = Global::lastSeenID; i < Global::tileCount; i++)
-        tileList[i].update(fail, goback);
+        tileList[i].update(fail, goback, scoreTxt);
     if (tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
         tileList[Global::lastSeenID].hadTouched())
         Global::lastSeenID++;

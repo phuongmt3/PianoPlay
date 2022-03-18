@@ -50,14 +50,14 @@ void pauseAllChannel(bool type, int channelCount)
             Mix_Pause(chan);
 }
 
-void Tile::handleInput(int posInput, int& fail)
+void Tile::handleInput(int posInput, int& fail, Text& scoreTxt)
 {
     cout << Global::curTileID << '\n';
     //if (posInput == pos && desR.y + h >= 0){
     if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
-        touched = 1, Global::curTileID++;
+        touched = 1, Global::curTileID++; Global::score++;
         for (int channel = 0; channel < channelCount; channel++){
             if (note[channel][0] != ""){
                 if (note[channel][0] == "!")
@@ -91,10 +91,14 @@ void Tile::handleInput(int posInput, int& fail)
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         Global::showWrongKey = 1;
         Global::wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
+        Global::score = 0;
     }*/
+    string str = to_string(Global::score);
+    scoreTxt.updateText(str, 200/4*(int)str.length());
+    scoreTxt.updateTexture();
 }
 
-void Tile::update(int& fail, int gobackLength)
+void Tile::update(int& fail, int gobackLength, Text& scoreTxt)
 {
     if (fail){
         desR.y -= gobackLength;
@@ -106,6 +110,9 @@ void Tile::update(int& fail, int gobackLength)
         fail = 1, cout << "You fail because of untouched\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         desR.y -= (gobackLength + int(Global::camera.y * Global::camera.speed));
+        Global::score = 0;
+        scoreTxt.updateText("0", 200/4);
+        scoreTxt.updateTexture();
     }
     for (int channel = 0; channel < channelCount * 2; channel++)
         if (runSecondTimeForChannel[channel]){

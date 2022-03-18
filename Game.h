@@ -36,14 +36,17 @@ class Text
 {
 private:
     SDL_Color textColor = {255,255,255};
-    TTF_Font *gFont = TTF_OpenFont("TTFfonts/Fine College.ttf", 1000);
+    TTF_Font *gFont = TTF_OpenFont("TTFfonts/Fine College.ttf", 100);
     string text;
+    SDL_Rect desR;
+    SDL_Texture* texture;
 public:
     Text();
-    Text(string _text, int font =-1, int color =-1);
-    void updateText(string newText);
+    Text(const string& _text, int x, int y, int w, int h);
+    void updateText(const string& newText, int _w);
     void updateFont(int font);
     void updateColor(int color);
+    void updateTexture();
     void show();
 };
 
@@ -94,8 +97,8 @@ public:
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, bool isSecond, int isBass);
     void show();
-    void handleInput(int posInput, int& fail);
-    void update(int& fail, int gobackLength);
+    void handleInput(int posInput, int& fail, Text& scoreTxt);
+    void update(int& fail, int gobackLength, Text& scoreTxt);
     int takePos(){
         return pos;
     }
@@ -115,7 +118,7 @@ class Global
 {
 public:
     static SDL_Renderer* renderer;
-    static int curTileID, tileCount, lastSeenID;
+    static int curTileID, tileCount, lastSeenID, score;
     static SDL_Texture *bg, *gameBg;
     static Camera camera;
     static int waitingTimeForSecondNote;
