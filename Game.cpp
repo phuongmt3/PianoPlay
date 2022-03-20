@@ -18,6 +18,13 @@ Uint32 Tile::curTick;
 
 Text SCORETxt, scoreTxt;
 PopUp failPopUp(300,300,400,300);
+int songCnt = 1, curSongId;
+string song[] = {
+        "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
+        "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
+        "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt",
+        "PianoPlay/pianoHub/ToLove'sEnd_Inuyasa.txt",
+        "PianoPlay/pianoHub/draft.txt"};
 
 bool isChar(char c)
 {
@@ -26,15 +33,12 @@ bool isChar(char c)
     return 0;
 }
 
-void addTile()
+void addTile(int songID)
 {
-    string song[] = {
-        "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
-        "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
-        "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt",
-        "PianoPlay/pianoHub/ToLove'sEnd_Inuyasa.txt",
-        "PianoPlay/pianoHub/draft.txt"};
-    ifstream fin(song[2]);
+    if (curSongId == songID)
+        songID = (songID + 1) % songCnt;
+    curSongId = songID;
+    ifstream fin(song[songID]);
     fin >> Global::tileCount;
     //Global::tileCount = 5;
     string s;
@@ -68,7 +72,7 @@ void addTile()
     }
 }
 
-void addNote()
+void addSound()
 {
     for (int chu = 0; chu < 14; chu++)
         for (int so = 0; so < 8; so++){
@@ -86,7 +90,6 @@ void showTile()
     for (int i = Global::lastSeenID; i < Global::tileCount &&
                                     i < Global::lastSeenID + 5; i++)
         tileList[i].show();
-
 }
 
 void init(const char* title, int xpos, int ypos,
@@ -116,8 +119,8 @@ void init(const char* title, int xpos, int ypos,
     Global::gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
     Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png");
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
-    addNote();
-    addTile();
+    addSound();
+    addTile(rand() % songCnt);
     SCORETxt = Text("Score",20,20,200,100);
     string test = "0";
     scoreTxt = Text(test,20,150,200/4*(int)test.length(),100);
@@ -204,9 +207,11 @@ void update(bool& isRunning, int& fail){
         tileList[Global::lastSeenID].hadTouched())
         Global::lastSeenID++;
     if (Global::lastSeenID >= Global::tileCount){
-        isRunning = 0; cout << "You are winner!\n";
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
         SDL_Delay(1000);
+        tileList.clear();
+        addTile(rand() % songCnt);
+        Global::curTileID = 0; Global::lastSeenID = 0;
     }
 }
 
