@@ -50,6 +50,34 @@ public:
     void show();
 };
 
+class Block
+{
+private:
+    SDL_Rect bloR;
+    Text content;
+    string name;
+public:
+    Block();
+    Block(const string& _name, int blox, int bloy, int blow, int bloh,
+          const string& _text, int x, int y, int w, int h);
+    void setText(int font, int color);
+    void show();
+    void update();
+};
+
+class PopUp
+{
+private:
+    SDL_Rect desR;
+    vector<Block> container;
+public:
+    PopUp(int x, int y, int w, int h);
+    void addBlock(const string& _name, int blox, int bloy, int blow, int bloh,//block so voi Popup, text sv block
+          const string& _text, int x, int y, int w, int h);
+    void update();
+    void show();
+};
+
 class AudioManager
 {
 public:
@@ -97,8 +125,8 @@ public:
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, bool isSecond, int isBass);
     void show();
-    void handleInput(int posInput, int& fail, Text& scoreTxt);
-    void update(int& fail, int gobackLength, Text& scoreTxt);
+    void handleInput(int posInput, int& fail, Text& scoreTxt, PopUp& failPopUp);
+    void update(int& fail, int gobackLength, Text& scoreTxt, PopUp& failPopUp);
     int takePos(){
         return pos;
     }

@@ -50,11 +50,11 @@ void pauseAllChannel(bool type, int channelCount)
             Mix_Pause(chan);
 }
 
-void Tile::handleInput(int posInput, int& fail, Text& scoreTxt)
+void Tile::handleInput(int posInput, int& fail, Text& scoreTxt, PopUp& failPopUp)
 {
     cout << Global::curTileID << '\n';
-    //if (posInput == pos && desR.y + h >= 0){
-    if (desR.y > 500 && !touched){
+    if (posInput == pos && desR.y + h >= 0){
+    //if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++; Global::score++;
@@ -85,20 +85,20 @@ void Tile::handleInput(int posInput, int& fail, Text& scoreTxt)
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    /*else{
+    else{
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         Global::showWrongKey = 1;
         Global::wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
+        failPopUp.update();
         Global::score = 0;
-    }*/
+    }
     string str = to_string(Global::score);
     scoreTxt.updateText(str, 200/4*(int)str.length());
-    scoreTxt.updateTexture();
 }
 
-void Tile::update(int& fail, int gobackLength, Text& scoreTxt)
+void Tile::update(int& fail, int gobackLength, Text& scoreTxt, PopUp& failPopUp)
 {
     if (fail){
         desR.y -= gobackLength;
@@ -110,6 +110,8 @@ void Tile::update(int& fail, int gobackLength, Text& scoreTxt)
         fail = 1, cout << "You fail because of untouched\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         desR.y -= (gobackLength + int(Global::camera.y * Global::camera.speed));
+
+        failPopUp.update();
         Global::score = 0;
         scoreTxt.updateText("0", 200/4);
         scoreTxt.updateTexture();
