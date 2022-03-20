@@ -12,13 +12,14 @@ vector<Tile> tileList;
 SDL_Rect Global::wrongRect;
 bool Global::showWrongKey = 0;
 int Global::tileCount;
-int Global::curTileID = 0, Global::lastSeenID = 0, Global::score = 0;
+int Global::curTileID, Global::lastSeenID, Global::score, Global::highScore;
 int Global::waitingTimeForSecondNote = 180;
 Uint32 Tile::curTick;
 
-Text SCORETxt, scoreTxt;
+PopUp scoreTxt(20,20,200,250);
+PopUp highScoreTxt(770,20,200,200);
 PopUp failPopUp(300,300,400,300);
-int songCnt = 1, curSongId;
+int songCnt = 4, curSongId;
 string song[] = {
         "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
         "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
@@ -121,10 +122,12 @@ void init(const char* title, int xpos, int ypos,
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addSound();
     addTile(rand() % songCnt);
-    SCORETxt = Text("Score",20,20,200,100);
-    string test = "0";
-    scoreTxt = Text(test,20,150,200/4*(int)test.length(),100);
-    failPopUp.addBlock("",0,0,400,75,"You lose!",50,0,300,75);
+
+    scoreTxt.addBlock("",0,0,200,100,"Score",0,0,200,100);
+    scoreTxt.addBlock("scoreOnlyNum",0,150,200,100,"0",0,0,200/4,100);
+    highScoreTxt.addBlock("",0,0,200,100,"High Score",0,0,200,100);
+    highScoreTxt.addBlock("scoreOnlyNum",0,150,200,100,"0",0,0,200/4,100);
+    failPopUp.addBlock("failTitle",0,0,400,75,"You lose!",50,0,300,75);
     failPopUp.addBlock("score",0,75,400,75,"Score: 0",75,15,250,50);
 }
 
@@ -147,7 +150,7 @@ void render(int& fail){
     TextureManager::drawImage(Global::bg, srcRBg, desRBg);
     TextureManager::drawImage(Global::gameBg, srcRGame, desRGame);
     showTile();
-    SCORETxt.show(); scoreTxt.show();
+    scoreTxt.show(); highScoreTxt.show();
     if (fail)
         failPopUp.show();
     SDL_RenderPresent(Global::renderer);
@@ -164,19 +167,19 @@ void handleInput(bool& isRunning, int& fail){
         {
         case SDLK_f:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(0, fail, scoreTxt, failPopUp);
+                tileList[Global::curTileID].handleInput(0, fail, scoreTxt, highScoreTxt, failPopUp);
             break;
         case SDLK_g:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(1, fail, scoreTxt, failPopUp);
+                tileList[Global::curTileID].handleInput(1, fail, scoreTxt, highScoreTxt, failPopUp);
             break;
         case SDLK_h:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(2, fail, scoreTxt, failPopUp);
+                tileList[Global::curTileID].handleInput(2, fail, scoreTxt, highScoreTxt, failPopUp);
             break;
         case SDLK_j:
             if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(3, fail, scoreTxt, failPopUp);
+                tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
             break;
         case SDLK_SPACE:
         {
@@ -194,7 +197,7 @@ void handleInput(bool& isRunning, int& fail){
         } break;
     default: break;
     }
-    //tileList[Global::curTileID].handleInput(3, fail, scoreTxt, failPopUp);
+    //tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
 }
 
 void update(bool& isRunning, int& fail){
@@ -202,13 +205,14 @@ void update(bool& isRunning, int& fail){
     int goback = tileList[Global::curTileID].desR.y +
                     tileList[Global::curTileID].desR.h;
     for (int i = Global::lastSeenID; i < Global::tileCount; i++)
-        tileList[i].update(fail, goback, scoreTxt, failPopUp);
+        tileList[i].update(fail, goback, scoreTxt, highScoreTxt, failPopUp);
+
     if (tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
         tileList[Global::lastSeenID].hadTouched())
         Global::lastSeenID++;
     if (Global::lastSeenID >= Global::tileCount){
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
-        SDL_Delay(1000);
+        SDL_Delay(2000);
         tileList.clear();
         addTile(rand() % songCnt);
         Global::curTileID = 0; Global::lastSeenID = 0;

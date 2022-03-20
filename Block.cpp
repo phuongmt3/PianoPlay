@@ -20,4 +20,14 @@ void Block::update(){
     if (name == "score"){
         content.updateText("Score: " + to_string(Global::score), -1);
     }
+    else if (name == "scoreOnlyNum"){
+        string test = to_string(Global::score);
+        content.updateText(test, 200/4*(int)test.length());
+    }
+    else if (name == "failTitle"){
+        if (Global::score == Global::highScore)
+            content.updateText("High Score!!",-1);
+        else
+            content.updateText("You lose!",-1);
+    }
 }

@@ -50,7 +50,8 @@ void pauseAllChannel(bool type, int channelCount)
             Mix_Pause(chan);
 }
 
-void Tile::handleInput(int posInput, int& fail, Text& scoreTxt, PopUp& failPopUp)
+void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
+                                    PopUp& failPopUp)
 {
     cout << Global::curTileID << '\n';
     if (posInput == pos && desR.y + h >= 0){
@@ -91,14 +92,20 @@ void Tile::handleInput(int posInput, int& fail, Text& scoreTxt, PopUp& failPopUp
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         Global::showWrongKey = 1;
         Global::wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
+
+        if (Global::score > Global::highScore){
+            Global::highScore = Global::score;
+            highScoreTxt.update();
+        }
         failPopUp.update();
         Global::score = 0;
     }
     string str = to_string(Global::score);
-    scoreTxt.updateText(str, 200/4*(int)str.length());
+    scoreTxt.update();
 }
 
-void Tile::update(int& fail, int gobackLength, Text& scoreTxt, PopUp& failPopUp)
+void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScoreTxt,
+                   PopUp& failPopUp)
 {
     if (fail){
         desR.y -= gobackLength;
@@ -111,10 +118,13 @@ void Tile::update(int& fail, int gobackLength, Text& scoreTxt, PopUp& failPopUp)
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
         desR.y -= (gobackLength + int(Global::camera.y * Global::camera.speed));
 
+        if (Global::score > Global::highScore){
+            Global::highScore = Global::score;
+            highScoreTxt.update();
+        }
         failPopUp.update();
         Global::score = 0;
-        scoreTxt.updateText("0", 200/4);
-        scoreTxt.updateTexture();
+        scoreTxt.update();
     }
     for (int channel = 0; channel < channelCount * 2; channel++)
         if (runSecondTimeForChannel[channel]){
