@@ -54,15 +54,15 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                                     PopUp& failPopUp)
 {
     cout << Global::curTileID << '\n';
-    if (posInput == pos && desR.y + h >= 0){
-    //if (desR.y > 500 && !touched){
+    //if (posInput == pos && desR.y + h >= 0){
+    if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++; Global::score++;
         for (int channel = 0; channel < channelCount; channel++){
             if (note[channel][0] != ""){
                 if (note[channel][0] == "!")
-                    pauseAllChannel(0, channelCount);
+                    Mix_Pause(channel);
                 else if (note[channel][1] == "")
                     AudioManager::playNote(note[channel][0], channel, 0);
                 else
@@ -74,7 +74,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                 runSecondTimeForChannel[channel] = 1;
             if (bass[channel][0] != ""){
                 if (bass[channel][0] == "!")
-                    pauseAllChannel(1, channelCount);
+                    Mix_Pause(channel + channelCount);
                 else if (bass[channel][1] == "")
                     AudioManager::playNote(bass[channel][0], channel + channelCount, 0);
                 else
@@ -86,7 +86,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    else{
+    /*else{
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
@@ -99,7 +99,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
         }
         failPopUp.update();
         Global::score = 0;
-    }
+    }*/
     string str = to_string(Global::score);
     scoreTxt.update();
 }
@@ -131,14 +131,14 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
             if (!Mix_Playing(channel)){
                 if (channel < channelCount){
                     if (note[channel][1] == "!")
-                        pauseAllChannel(0, channelCount);
+                        Mix_Pause(channel);
                     else
                         AudioManager::playNote(note[channel][1], channel, 0);
                     runSecondTimeForChannel[channel] = 0;
                 }
                 else{
                     if (bass[channel - channelCount][1] == "!")
-                        pauseAllChannel(1, channelCount);
+                        Mix_Pause(channel);
                     else
                         AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
                     runSecondTimeForChannel[channel] = 0;
@@ -147,14 +147,14 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
             else if (SDL_GetTicks() - curTick >= int(Global::waitingTimeForSecondNote / Global::camera.speed)){
                 if (channel < channelCount && note[channel][0] == ""){
                     if (note[channel][1] == "!")
-                        pauseAllChannel(0, channelCount);
+                        Mix_Pause(channel);
                     else
                         AudioManager::playNote(note[channel][1], channel, 0);
                     runSecondTimeForChannel[channel] = 0;
                 }
                 else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
                     if (bass[channel - channelCount][1] == "!")
-                        pauseAllChannel(1, channelCount);
+                        Mix_Pause(channel);
                     else
                         AudioManager::playNote(bass[channel - channelCount][1], channel, 0);
                     runSecondTimeForChannel[channel] = 0;

@@ -19,8 +19,9 @@ Uint32 Tile::curTick;
 PopUp scoreTxt(20,20,200,250);
 PopUp highScoreTxt(770,20,200,200);
 PopUp failPopUp(300,300,400,300);
-int songCnt = 4, curSongId;
+int songCnt = 1, curSongId;
 string song[] = {
+        "PianoPlay/pianoHub/3107_3.txt",
         "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
         "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
         "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt",
@@ -163,41 +164,53 @@ void handleInput(bool& isRunning, int& fail){
     case SDL_QUIT:
         isRunning = 0; break;
     case SDL_KEYDOWN:
-        switch(event.key.keysym.sym)
-        {
-        case SDLK_f:
-            if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(0, fail, scoreTxt, highScoreTxt, failPopUp);
-            break;
-        case SDLK_g:
-            if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(1, fail, scoreTxt, highScoreTxt, failPopUp);
-            break;
-        case SDLK_h:
-            if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(2, fail, scoreTxt, highScoreTxt, failPopUp);
-            break;
-        case SDLK_j:
-            if (!fail && !Global::camera.stop)
-                tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
-            break;
-        case SDLK_SPACE:
-        {
-            if (Global::camera.stop && !fail)
-                Global::camera.stop = 0;
-            else
-                Global::camera.stop = 1;
-            if (fail)
-                fail = 0;
+    {
+        if (!fail){
+            switch(event.key.keysym.sym)
+            {
+                case SDLK_f:
+                    if (!Global::camera.stop)
+                        tileList[Global::curTileID].handleInput(0, fail, scoreTxt, highScoreTxt, failPopUp);
+                    break;
+                case SDLK_g:
+                    if (!Global::camera.stop)
+                        tileList[Global::curTileID].handleInput(1, fail, scoreTxt, highScoreTxt, failPopUp);
+                    break;
+                case SDLK_h:
+                    if (!Global::camera.stop)
+                        tileList[Global::curTileID].handleInput(2, fail, scoreTxt, highScoreTxt, failPopUp);
+                    break;
+                case SDLK_j:
+                    if (!Global::camera.stop)
+                        tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
+                    break;
+                case SDLK_SPACE:
+                {
+                    if (Global::camera.stop)
+                        Global::camera.stop = 0;
+                    else
+                        Global::camera.stop = 1;
+                }
+                break;
+                case SDLK_ESCAPE:
+                    isRunning = 0; break;
+                default: break;
+            }
         }
-        break;
-        case SDLK_ESCAPE:
-            isRunning = 0; break;
-        default: break;
-        } break;
+        else{
+            switch(event.key.keysym.sym)
+            {
+            case SDLK_SPACE:
+                fail = 0; break;
+            case SDLK_ESCAPE:
+                isRunning = 0; break;
+            default: break;
+            }
+        }
+    }break;
     default: break;
     }
-    //tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
+    tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
 }
 
 void update(bool& isRunning, int& fail){

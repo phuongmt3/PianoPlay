@@ -22,7 +22,7 @@ class Global;
 class Camera
 {
 public:
-    double y = 8, speed = 1.5;
+    double y = 8, speed = 1;
     bool stop;
     void update()
     {
