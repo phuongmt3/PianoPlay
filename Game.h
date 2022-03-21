@@ -22,7 +22,7 @@ class Global;
 class Camera
 {
 public:
-    double y = 8, speed = 1;
+    double y = 8, speed = 1.5;
     bool stop;
     void update()
     {
@@ -53,10 +53,10 @@ public:
 class Block
 {
 private:
-    SDL_Rect bloR;
     string name;
 public:
     Text content;
+    SDL_Rect bloR;
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh,
           const string& _text, int x, int y, int w, int h);

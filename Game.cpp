@@ -19,13 +19,16 @@ Uint32 Tile::curTick;
 PopUp scoreTxt(20,20,200,250);
 PopUp highScoreTxt(770,20,200,200);
 PopUp failPopUp(300,300,400,300);
-int songCnt = 1, curSongId;
+Block speedTxt;
+PopUp speedPopUp(0,550,200,250);
+bool showSpeedPopUp = 0;
+int songCnt = 5, curSongId;
 string song[] = {
-        "PianoPlay/pianoHub/3107_3.txt",
         "PianoPlay/pianoHub/TwinkleTwinkleLittleStar.txt",
         "PianoPlay/pianoHub/MyAll_AyumiHamasaki.txt",
         "PianoPlay/pianoHub/YoruNiKakeru_Yoasobi.txt",
         "PianoPlay/pianoHub/ToLove'sEnd_Inuyasa.txt",
+        "PianoPlay/pianoHub/3107_3.txt",
         "PianoPlay/pianoHub/draft.txt"};
 
 bool isChar(char c)
@@ -40,6 +43,7 @@ void addTile(int songID)
     if (curSongId == songID)
         songID = (songID + 1) % songCnt;
     curSongId = songID;
+    //songID = 4;
     ifstream fin(song[songID]);
     fin >> Global::tileCount;
     //Global::tileCount = 5;
@@ -94,6 +98,15 @@ void showTile()
         tileList[i].show();
 }
 
+bool inside(const int& x, const int& y, const SDL_Rect& rec)
+{
+    if (x < rec.x || x > rec.x + rec.w)
+        return 0;
+    if (y < rec.y || y > rec.y + rec.h)
+        return 0;
+    return 1;
+}
+
 void init(const char* title, int xpos, int ypos,
               int width, int height, bool fullscreen, bool& isRunning, int& fail){
     int flag = 0;
@@ -130,6 +143,12 @@ void init(const char* title, int xpos, int ypos,
     highScoreTxt.addBlock("scoreOnlyNum",0,150,200,100,"0",0,0,200/4,100);
     failPopUp.addBlock("failTitle",0,0,400,75,"You lose!",50,0,300,75);
     failPopUp.addBlock("score",0,75,400,75,"Score: 0",75,15,250,50);
+    speedTxt = Block("",20,800,200,100,"Speed",0,10,200,80);
+    speedPopUp.addBlock("",0,0,200,50,"0.5",0,0,50,50);
+    speedPopUp.addBlock("",0,50,200,50,"1",0,0,20,50);
+    speedPopUp.addBlock("",0,100,200,50,"1.5",0,0,50,50);
+    speedPopUp.addBlock("",0,150,200,50,"2",0,0,20,50);
+    speedPopUp.addBlock("",0,200,200,50,"2.5",0,0,50,50);
 }
 
 void render(int& fail){
@@ -151,7 +170,9 @@ void render(int& fail){
     TextureManager::drawImage(Global::bg, srcRBg, desRBg);
     TextureManager::drawImage(Global::gameBg, srcRGame, desRGame);
     showTile();
-    scoreTxt.show(); highScoreTxt.show();
+    scoreTxt.show(); highScoreTxt.show(); speedTxt.show();\
+    if (showSpeedPopUp)
+        speedPopUp.show();
     if (fail)
         failPopUp.show();
     SDL_RenderPresent(Global::renderer);
@@ -163,6 +184,23 @@ void handleInput(bool& isRunning, int& fail){
     {
     case SDL_QUIT:
         isRunning = 0; break;
+    case SDL_MOUSEBUTTONDOWN:
+    {
+        int x, y; SDL_GetMouseState(&x, &y);
+        if (showSpeedPopUp){
+            for (int i = 0; i < 5; i++)
+                if (inside(x, y, speedPopUp.container[i].bloR))
+                    Global::camera.speed = 0.5 + 0.5*i;
+        }
+    }break;
+    case SDL_MOUSEBUTTONUP:
+    {
+        int x, y; SDL_GetMouseState(&x, &y);
+        if (inside(x, y, speedTxt.bloR))
+            showSpeedPopUp = 1;
+        else
+            showSpeedPopUp = 0;
+    }break;
     case SDL_KEYDOWN:
     {
         if (!fail){
@@ -210,7 +248,7 @@ void handleInput(bool& isRunning, int& fail){
     }break;
     default: break;
     }
-    tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
+    //tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
 }
 
 void update(bool& isRunning, int& fail){

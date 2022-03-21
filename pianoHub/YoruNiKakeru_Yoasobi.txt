@@ -260,7 +260,7 @@ Eb5,Eb3+Ab2
 C5-Eb5,-Eb3+Ab2
 -C5 
 Eb5,Eb3+Ab2
-!-C5,!
+!-C5,!+!
 G5-G5 
 F5 
 G5 
@@ -268,7 +268,7 @@ F5,D3+G2
 D5-Bb4,-D3+G2
 -G4 
 C5,D3+G2
-!-G5,!
+!-G5,!+!
 G5-G5 
 G5-Ab5 
 Bb5-G5,-Eb3+Ab2
@@ -314,11 +314,11 @@ Eb5,Ab1
 Ab5,Ab2
 G5+D5,D2+D1
 ,D1-D2
-!,!-D2
+!+!,!-D2
 ,D2-D2
 ,D2+A2
 Eb5+Eb6 
-D5+D6,!
+D5+D6,!+!
 Bb4+Bb5 
 Bb4+Bb5,Ab2+Ab1
 -C5+C6,Ab2
@@ -365,7 +365,7 @@ C6+C5-G5+G4,G2
 ,Bb2+D3
 F4+F5,G2
 Eb4+Eb5,C3+C2
-!,C3
+!+!,C3
 C5+C4,Eb3+G3
 D4+D5,C3
 Eb4+Eb5,Ab1+Ab2
@@ -378,7 +378,7 @@ G5+G4,C3+Eb3
 C6+C5,Ab2
 B5+B4,G2+G1
 ,G2+D2
-!,G1-G2
+!+!,G1-G2
 G5+G4,G2+D2
 G5+G4,G1-G2
 Eb5+Eb6,D2-G1
@@ -397,7 +397,7 @@ C6+C5-G5+G4,G2
 ,Bb2+D3
 F5+F4,G2
 Eb5+Eb4,C3+C2
-!,C3
+!+!,C3
 Eb5+Eb4,Eb3+G3
 Bb5+Bb4,C3
 Ab5+Ab4,Ab2+Ab1
@@ -432,11 +432,11 @@ Eb6+Eb5,B2
 G5+G4,C3
 F5+F4,G3+Eb3
 Eb5+Eb4,C3
-!,Ab2+Ab1
+!+!,Ab2+Ab1
 C5+C4,Ab2
 Eb5+Eb4,C3-Eb2
 Ab5+Ab4-G5+G4,Ab1-Bb1+Bb2
--!,Bb1+Bb2
+-!+!,Bb1+Bb2
 Eb5+Eb4,Bb2
 Eb5-F5,F3+C3
 G5-Bb5,Eb3+Bb2
@@ -562,7 +562,7 @@ Bb3-Bb3,G2
 C4,G1
 !,C2
 C5+G5+C6,-C3
-!-C5+G5+C6 
+!+!+!-C5+G5+C6 
 ,C2
 C5+G5+C6,C2
 -C5+G5+C6,C2
@@ -756,7 +756,7 @@ Eb4,Eb3+Ab2
 C4-Eb4,-Eb3+Ab2
 -C4 
 Eb4,Eb3+Ab2
-!-C4,!
+!-C4,!+!
 G4-G4 
 F4 
 G4 
@@ -764,7 +764,7 @@ F4,D3+G2
 D4-Bb3,-D3+G2
 -Bb3 
 C4,D3+G2
-!-G4,!
+!-G4,!+!
 G4-G4 
 G4-Ab4 
 Bb4-G4,-Eb3+Ab2
@@ -788,7 +788,7 @@ Eb4,Eb3+Ab2
 C4-Eb4,-Eb3+Ab2
 -C4 
 F4,Bb2+F3
-!-G4,!
+!-G4,!+!
 C5-C5 
 Bb4-Bb4 
 C5-C5 
@@ -796,7 +796,7 @@ Bb4,D3+G2
 G4-F4,-D3+G2
 !-G4 
 Eb4,G3+C3
-!,!
+!,!+!
 ,C2
 Eb4,C3
 F4,C2
@@ -1008,7 +1008,7 @@ F6+F5,Db3+A2
 Ab5+Ab4,D3+A2-D2
 G5+G4,D2-D2
 F5+F4,D3+A2-D2
-!,Bb2+Bb1
+!+!,Bb2+Bb1
 D5+D4,Bb2
 F5+F4,D3+F3
 Bb5+Bb4,Bb2
@@ -1016,7 +1016,7 @@ A5+A4,C2
 F5+F4,C3+E3-C2
 D5+D4,C2-C2
 F5+F4,C3+E3-C2
-!,F2
+!+!,F2
 ,F3+C3
 ,F2
 C5+C4,F3+C3
@@ -1032,7 +1032,7 @@ C5+C4,C2
 F5+F4,C3+E3-C2
 G5+G4,C2-C2
 F5+F4,E3+C3-C2
-!,F2
+!+!,F2
 ,F3+C3
 A5+A4,F2
 C6+C5,F3+C3
@@ -1046,7 +1046,7 @@ F5+F4-D6+F5+D5,D3+Bb2-F2
 -C6+E5+C5,Bb1-C2+C3
 C6+E5+C5,C3+C2
 A5+A4,C3+C2
-D5+D4,!
+D5+D4,!+!
 F5+F4 
 D6-C6,Bb1
 -A5,D3+Bb2
@@ -1110,5 +1110,5 @@ F5-G5,D2
 A5-D6,D3+A2
 C6,D3+D2
 -D6+D5,-D3+D2
-!,!
+!+!,!+!
 F6+F5,D3+D2

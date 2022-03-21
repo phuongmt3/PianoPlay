@@ -54,8 +54,8 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                                     PopUp& failPopUp)
 {
     cout << Global::curTileID << '\n';
-    //if (posInput == pos && desR.y + h >= 0){
-    if (desR.y > 500 && !touched){
+    if (posInput == pos && desR.y + h >= 0){
+    //if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
         touched = 1, Global::curTileID++; Global::score++;
@@ -86,7 +86,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    /*else{
+    else{
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;
@@ -99,7 +99,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
         }
         failPopUp.update();
         Global::score = 0;
-    }*/
+    }
     string str = to_string(Global::score);
     scoreTxt.update();
 }
