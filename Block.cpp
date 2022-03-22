@@ -31,3 +31,8 @@ void Block::update(){
             content.updateText("You lose!",-1);
     }
 }
+
+void Block::changePos(int x, int y) {
+    bloR.x += x; content.desR.x += x;
+    bloR.y += y; content.desR.y += y;
+}

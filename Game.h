@@ -36,11 +36,11 @@ class Text
 {
 private:
     SDL_Color textColor = {255,255,255};
-    TTF_Font *gFont = TTF_OpenFont("TTFfonts/Fine College.ttf", 100);
+    TTF_Font *gFont = TTF_OpenFont("PianoPlay/TTFfonts/Fine College.ttf", 100);
     string text;
-    SDL_Rect desR;
     SDL_Texture* texture;
 public:
+    SDL_Rect desR;
     Text();
     Text(const string& _text, int x, int y, int w, int h);
     void updateText(const string& newText, int _w);
@@ -48,6 +48,9 @@ public:
     void updateColor(int color);
     void updateTexture();
     void show();
+    string takeText() {
+        return text;
+    }
 };
 
 class Block
@@ -57,25 +60,33 @@ private:
 public:
     Text content;
     SDL_Rect bloR;
+
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh,
           const string& _text, int x, int y, int w, int h);
     void setText(int font, int color);
     void show();
     void update();
+    void changePos(int x, int y);
+    string getName() {
+        return name;
+    }
 };
 
 class PopUp
 {
-private:
-    SDL_Rect desR;
 public:
     vector<Block> container;
+    SDL_Rect desR;
+    int limitMoveUp, limitMoveDown;
+
     PopUp(int x, int y, int w, int h);
     void addBlock(const string& _name, int blox, int bloy, int blow, int bloh,//block so voi Popup, text sv block
           const string& _text, int x, int y, int w, int h);
     void update();
     void show();
+    bool visibleBlock(int i);
+    int takeY_BasePopUp(int i);
 };
 
 class AudioManager
