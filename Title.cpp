@@ -86,7 +86,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                 runSecondTimeForChannel[channel + channelCount] = 1;
         }
     }
-    else{
+    else {
         AudioManager::playNote("A0", 0, 0);
         fail = 1, cout << "You fail because of wrong key\n";
         Global::camera.stop = 1, Global::lastSeenID = Global::curTileID;

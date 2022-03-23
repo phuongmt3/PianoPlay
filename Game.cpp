@@ -20,7 +20,7 @@ PopUp scoreTxt(20,20,200,250);
 PopUp highScoreTxt(770,20,200,250);
 PopUp failPopUp(300,300,400,300);
 Block speedTxt;
-PopUp speedPopUp(0,550,200,250);
+PopUp speedPopUp(50,550,150,250);
 PopUp chooseSongPopUp(300, 200, 400, 475);
 bool showSpeedPopUp = 0, showChooseSong = 0;
 int songCnt = 6, curSongId;
@@ -31,7 +31,7 @@ string song[] = {
         "YoruNiKakeru_Yoasobi",
         "ToLove'sEnd_Inuyasa",
         "3107_3",
-        "draft"
+        "ToiThayHoaVangTrenCoXanh"
 };
 
 bool isChar(char c)
@@ -137,30 +137,31 @@ void init(const char* title, int xpos, int ypos,
     addTile(rand() % songCnt);
 
     scoreTxt.setColor(transparent);
-    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",0,0,100,white);
-    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",0,0,150,white);
+    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white);
+    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white);
 
     highScoreTxt.setColor(transparent);
-    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,0,80,white);
-    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",0,0,150,white);
+    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,white);
+    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white);
 
     failPopUp.setColor(lightGrey);
-    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",50,0,80,white);
-    failPopUp.addBlock("score",0,75,400,75,transparent,"Score: 0",75,0,80,white);
-    failPopUp.addBlock("",0,200,200,75,transparent,"Choose song",10,0,80,white);
+    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,white);
+    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,white);
+    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,red);
+    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,white);
 
-    speedTxt = Block("",20,800,200,100,blueTranparent,"Speed",0,0,70,white);
+    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,0,70,white);
     speedPopUp.setColor(transparent);
-    speedPopUp.addBlock("",0,0,200,50,lightGrey,"0.5",10,0,60,white);
-    speedPopUp.addBlock("",0,50,200,50,lightGrey,"1",10,0,60,white);
-    speedPopUp.addBlock("",0,100,200,50,white,"1.5",10,0,60,black);
-    speedPopUp.addBlock("",0,150,200,50,lightGrey,"2",10,0,60,white);
-    speedPopUp.addBlock("",0,200,200,50,lightGrey,"2.5",10,0,60,white);
+    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,white);
+    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,white);
+    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,black);
+    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,white);
+    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,white);
 
     chooseSongPopUp.setColor(darkGrey);
-    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 75, 0, 100, white);
+    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white);
     for (int i = 0; i < songCnt; i++)
-        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 65, white);
+        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 60, white);
     chooseSongPopUp.limitMoveUp = 100;
 }
 
@@ -207,10 +208,10 @@ void handleInput(bool& isRunning, int& fail){
         else
             speedTxt.setColor(blueTranparent), speedTxt.setText(-1, white);
 
-        if (fail && inside(x, y, failPopUp.container[2].bloR))
-            failPopUp.container[2].setColor(white), failPopUp.container[2].setText(-1,black);
+        if (fail && inside(x, y, failPopUp.container[3].bloR))
+            failPopUp.container[3].setColor(white), failPopUp.container[3].setText(-1,black);
         else
-            failPopUp.container[2].setColor(transparent), failPopUp.container[2].setText(-1, white);
+            failPopUp.container[3].setColor(transparent), failPopUp.container[3].setText(-1, white);
 
         if (showChooseSong) {
             for (int i = 1; i <= songCnt; i++) {
@@ -236,7 +237,7 @@ void handleInput(bool& isRunning, int& fail){
                     speedPopUp.container[i].setColor(white);
                     speedPopUp.container[i].setText(-1, black);
                 }
-                else
+                else if (inside(x, y, speedPopUp.desR))
                     speedPopUp.container[i].setColor(lightGrey),
                     speedPopUp.container[i].setText(-1, white);
             }
@@ -257,7 +258,7 @@ void handleInput(bool& isRunning, int& fail){
             showSpeedPopUp = 1;
         else
             showSpeedPopUp = 0;
-        if (fail && inside(x, y, failPopUp.container[2].bloR))
+        if (fail && inside(x, y, failPopUp.container[3].bloR))
             showChooseSong = 1;
         else
             showChooseSong = 0;

@@ -29,7 +29,7 @@ void Block::setColor(Color newColor) {
 
 void Block::update(){
     if (name == "score"){
-        content.updateText("Score: " + to_string(Global::score));
+        content.updateText("Your score: " + to_string(Global::score));
     }
     else if (name == "scoreOnlyNum"){
         string test = to_string(Global::score);

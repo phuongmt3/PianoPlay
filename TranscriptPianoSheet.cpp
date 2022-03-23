@@ -10,16 +10,16 @@ map<int, string> key0, key1;
 map<int, string> key0up, key0down, key1up, key1down;
 string s;
 
-string songName = "TwinkleTwinkleLittleStar";
+string songName = "ToiThayHoaVangTrenCoXanh";
 ifstream fin("Raw_" + songName + ".txt");
 ofstream fout(songName + ".txt");
 
 void setUpDown()//change manually based on the song
 {
     //down[4] = down[1] = 1;
-    //down[1] = 1;
+    down[1] = 1;
     //up[2] = up[5] = up[0] = up[3] = up[6] = 1;
-    up[5] = 1;
+    //up[5] = 1;
 }
 
 void init()
