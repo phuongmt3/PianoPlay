@@ -23,14 +23,15 @@ Block speedTxt;
 PopUp speedPopUp(0,550,200,250);
 PopUp chooseSongPopUp(300, 200, 400, 475);
 bool showSpeedPopUp = 0, showChooseSong = 0;
-int songCnt = 5, curSongId;
+int songCnt = 6, curSongId;
 
 string song[] = {
         "TwinkleTwinkleLittleStar",
         "MyAll_AyumiHamasaki",
         "YoruNiKakeru_Yoasobi",
         "ToLove'sEnd_Inuyasa",
-        "3107_3"
+        "3107_3",
+        "draft"
 };
 
 bool isChar(char c)
@@ -265,12 +266,12 @@ void handleInput(bool& isRunning, int& fail){
     {
         int x, y; SDL_GetMouseState(&x, &y);
         if (inside(x, y, chooseSongPopUp.desR)) {
-            if (event.wheel.y > 0 && chooseSongPopUp.takeY_BasePopUp(songCnt) +
+            if (event.wheel.y < 0 && chooseSongPopUp.takeY_BasePopUp(songCnt) +
                 chooseSongPopUp.container[songCnt].bloR.h != chooseSongPopUp.limitMoveDown) {
                 for (int i = 1; i <= songCnt; i++)
                     chooseSongPopUp.container[i].changePos(0, -chooseSongPopUp.container[i].bloR.h);
             }
-            else if (event.wheel.y < 0 && chooseSongPopUp.takeY_BasePopUp(1) != chooseSongPopUp.limitMoveUp) {
+            else if (event.wheel.y > 0 && chooseSongPopUp.takeY_BasePopUp(1) != chooseSongPopUp.limitMoveUp) {
                 for (int i = 1; i <= songCnt; i++)
                     chooseSongPopUp.container[i].changePos(0, chooseSongPopUp.container[i].bloR.h);
             }
