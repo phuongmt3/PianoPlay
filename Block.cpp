@@ -1,34 +1,49 @@
 #include "Game.h"
 
 Block::Block(){}
-Block::Block(const string& _name, int blox, int bloy, int blow, int bloh,
-          const string& _text, int x, int y, int w, int h){
+Block::Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
+          const string& _text, int x, int y, int fontSize, Color textColor){
     bloR = {blox, bloy, blow, bloh};
-    content = Text(_text, x + blox, y + bloy, w, h);
+    colorType = blockColor;
+    content = Text(_text, x + blox, y + bloy, fontSize, textColor);
     name = _name;
 }
 
-void Block::setText(int font, int color){}
+void Block::setText(int fontType, Color colorType){
+    content.updateColor(colorType);
+    //content.updateFont(fontType);
+}
 
 void Block::show(){
-    SDL_SetRenderDrawColor(Global::renderer,50,50,50,255);
+    SDL_SetRenderDrawColor(Global::renderer, colorList[colorType].r,
+        colorList[colorType].g,
+        colorList[colorType].b,
+        colorList[colorType].a);
     SDL_RenderFillRect(Global::renderer, &bloR);
     content.show();
 }
 
+void Block::setColor(Color newColor) {
+    colorType = newColor;
+}
+
 void Block::update(){
     if (name == "score"){
-        content.updateText("Score: " + to_string(Global::score), -1);
+        content.updateText("Score: " + to_string(Global::score));
     }
     else if (name == "scoreOnlyNum"){
         string test = to_string(Global::score);
-        content.updateText(test, 200/4*(int)test.length());
+        content.updateText(test);
     }
     else if (name == "failTitle"){
-        if (Global::score == Global::highScore)
-            content.updateText("High Score!!",-1);
-        else
-            content.updateText("You lose!",-1);
+        if (Global::score == Global::highScore && Global::score > 0) {
+            content.updateText("High Score!!");
+            setColor(blue);
+        }
+        else {
+            content.updateText("You lose!");
+            setColor(darkGrey);
+        }
     }
 }
 

@@ -11,12 +11,26 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 #include "SDL_ttf.h"
-using namespace std;//currently resources is not sync, change link variable
+using namespace std;
 
 const int WINDOW_WIDTH = 1000;
 const int WINDOW_HEIGHT = 900;
 const int GAME_WIDTH = 500;
 const int GAME_HEIGHT = 900;
+
+const SDL_Color colorList[] = {
+    { 255, 255, 255, 255 }, 
+    { 255, 13, 13, 255 },
+    { 50, 50, 50, 255 },
+    { 80, 80, 80, 255 },
+    { 30, 35, 247, 255 },
+    { 0, 0, 0, 0},
+    { 0, 0, 0, 255},
+    { 30, 35, 247, 180}
+};
+enum Color {
+    white, red, darkGrey, lightGrey, blue, transparent, black, blueTranparent
+};
 
 class Global;
 class Camera
@@ -35,17 +49,17 @@ public:
 class Text
 {
 private:
-    SDL_Color textColor = {255,255,255};
-    TTF_Font *gFont = TTF_OpenFont("PianoPlay/TTFfonts/Fine College.ttf", 100);
+    SDL_Color textColor = colorList[white];
+    TTF_Font *gFont = nullptr;
     string text;
     SDL_Texture* texture;
 public:
     SDL_Rect desR;
     Text();
-    Text(const string& _text, int x, int y, int w, int h);
-    void updateText(const string& newText, int _w);
-    void updateFont(int font);
-    void updateColor(int color);
+    Text(const string& _text, int x, int y, int fontSize, Color textColor);
+    void updateText(const string& newText);
+    void updateFont(int fontSize);
+    void updateColor(Color type);
     void updateTexture();
     void show();
     string takeText() {
@@ -57,14 +71,16 @@ class Block
 {
 private:
     string name;
+    Color colorType;
 public:
     Text content;
     SDL_Rect bloR;
 
     Block();
-    Block(const string& _name, int blox, int bloy, int blow, int bloh,
-          const string& _text, int x, int y, int w, int h);
-    void setText(int font, int color);
+    Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
+          const string& _text, int x, int y, int fontSize, Color textColor);
+    void setText(int fontType, Color colorType);
+    void setColor(Color newColor);
     void show();
     void update();
     void changePos(int x, int y);
@@ -75,14 +91,17 @@ public:
 
 class PopUp
 {
+private:
+    Color colorType;
 public:
     vector<Block> container;
     SDL_Rect desR;
     int limitMoveUp, limitMoveDown;
 
     PopUp(int x, int y, int w, int h);
-    void addBlock(const string& _name, int blox, int bloy, int blow, int bloh,//block so voi Popup, text sv block
-          const string& _text, int x, int y, int w, int h);
+    void addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
+          const string& _text, int x, int y, int fontSize, Color textColor);
+    void setColor(Color newColor);
     void update();
     void show();
     bool visibleBlock(int i);

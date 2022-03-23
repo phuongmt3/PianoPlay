@@ -5,16 +5,23 @@ PopUp::PopUp(int x, int y, int w, int h){
     limitMoveUp = 0; limitMoveDown = h;
 }
 
-void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh,//block so voi Popup, text sv block
-      const string& _text, int x, int y, int w, int h){
-    container.push_back(Block(_name,blox + desR.x, bloy + desR.y,blow,bloh,_text,x,y,w,h));
+void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
+      const string& _text, int x, int y, int fontSize, Color textColor){
+    container.push_back(Block(_name,blox + desR.x, bloy + desR.y,blow,bloh,blockColor,
+                            _text,x,y,fontSize,textColor));
 }
 void PopUp::update(){
     for (auto& i: container)
         i.update();
 }
+void PopUp::setColor(Color newColor) {
+    colorType = newColor;
+}
 void PopUp::show(){
-    SDL_SetRenderDrawColor(Global::renderer,100,100,100,255);
+    SDL_SetRenderDrawColor(Global::renderer, colorList[colorType].r,
+        colorList[colorType].g,
+        colorList[colorType].b,
+        colorList[colorType].a);
     SDL_RenderFillRect(Global::renderer, &desR);
     for (int i = 0; i < container.size(); i++)
         if (visibleBlock(i))
