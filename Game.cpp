@@ -13,7 +13,7 @@ SDL_Rect Global::wrongRect;
 bool Global::showWrongKey = 0;
 int Global::tileCount;
 int Global::curTileID, Global::lastSeenID, Global::score, Global::highScore;
-int Global::waitingTimeForSecondNote = 180;
+const int Global::waitingTimeForSecondNote = 90;
 Uint32 Tile::curTick;
 
 PopUp scoreTxt(20,20,200,250);
@@ -23,7 +23,7 @@ Block speedTxt;
 PopUp speedPopUp(50,550,150,250);
 PopUp chooseSongPopUp(300, 200, 400, 475);
 bool showSpeedPopUp = 0, showChooseSong = 0;
-int songCnt = 6, curSongId;
+int songCnt = 8, curSongId;
 
 string song[] = {
         "TwinkleTwinkleLittleStar",
@@ -31,19 +31,21 @@ string song[] = {
         "YoruNiKakeru_Yoasobi",
         "ToLove'sEnd_Inuyasa",
         "3107_3",
-        "ToiThayHoaVangTrenCoXanh"
+        "ToiThayHoaVangTrenCoXanh",
+        "DemonSlayer",
+        "draft"
 };
 
 bool isChar(char c)
 {
-    if (c == ',' || c == '-' || c == '+')
+    if (c == ',' || c == '-' || c == '+' || c == '=')
         return 1;
     return 0;
 }
 
 void addTile(int songID)
 {
-    curSongId = songID;
+    curSongId = songID; //songID = 7;
     ifstream fin("PianoPlay/pianoHub/" + song[songID] + ".txt");
     fin >> Global::tileCount;
     string s;
@@ -55,7 +57,7 @@ void addTile(int songID)
             tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4));
         Tile* curTile = &tileList.back();
         int pos = 0, channel = 0;
-        bool isSecond = 0;//2 note lien tiep
+        int consecutiveNotes = 0;
         for (int bass = 0; bass < 2; bass++){
             channel = 0;
             while (pos < int(s.length()) && s[pos] != ','){
@@ -63,16 +65,21 @@ void addTile(int songID)
                     string note = "";
                     while (!isChar(s[pos]) && pos < int(s.length()))
                         note += s[pos], pos++;
-                    curTile->setNote(note,channel,isSecond,bass);
+                    curTile->setNote(note,channel, consecutiveNotes,bass);
                 }
                 else if (s[pos] == '-'){
-                    isSecond = 1; pos++; channel = 0;
+                    consecutiveNotes += 2; consecutiveNotes = min(consecutiveNotes, 3);
+                    pos++; channel = 0;
+                }
+                else if (s[pos] == '=') {
+                    consecutiveNotes++;
+                    pos++; channel = 0;
                 }
                 else if (s[pos] == '+'){
                     channel++; pos++;
                 }
             }
-            pos++; isSecond = 0;
+            pos++; consecutiveNotes = 0;
         }
     }
 }
@@ -92,7 +99,7 @@ void addSound()
 
 void showTile()
 {
-    for (int i = Global::lastSeenID; i < Global::tileCount &&
+    for (int i = Global::lastSeenID; i < tileList.size() &&
                                     i < Global::lastSeenID + 5; i++)
         tileList[i].show();
 }
@@ -331,18 +338,23 @@ void handleInput(bool& isRunning, int& fail){
 void update(bool& isRunning, int& fail){
     Global::camera.update();
     int goback = 0;
-    if (Global::curTileID < Global::tileCount)
+    if (Global::curTileID < tileList.size())
         goback = tileList[Global::curTileID].desR.y + tileList[Global::curTileID].desR.h;
-    for (int i = Global::lastSeenID; i < Global::tileCount; i++)
-        tileList[i].update(fail, goback, scoreTxt, highScoreTxt, failPopUp);
-
-    if (tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
-        tileList[Global::lastSeenID].hadTouched())
-        Global::lastSeenID++;
-    if (Global::lastSeenID >= Global::tileCount){
+    for (int i = Global::lastSeenID; i < tileList.size(); i++)
+        tileList[i].update(fail, goback, scoreTxt, highScoreTxt, failPopUp, i);
+    while (Global::lastSeenID > 0) {
+        tileList.erase(tileList.begin());
+        Global::curTileID--;
+        Global::lastSeenID--;
+    }
+    if (tileList.size() > 0 && tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
+        tileList[Global::lastSeenID].hadTouched()) {
+        tileList.erase(tileList.begin());
+        Global::curTileID--;
+    }
+    if (tileList.empty()){
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
         SDL_Delay(2000);
-        tileList.clear();
         int nextID = rand() % songCnt;
         nextID == curSongId ? addTile((nextID + 1) % songCnt) : addTile(nextID);
         Global::curTileID = 0; Global::lastSeenID = 0;

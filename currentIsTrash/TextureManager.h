@@ -1,7 +1,6 @@
 #ifndef TEXTUREMANAGER_H_INCLUDED
 #define TEXTUREMANAGER_H_INCLUDED
 
-#pragma once
 class TextureManager
 {
 public:

@@ -1,7 +1,6 @@
 #ifndef GAME_H_INCLUDED
 #define GAME_H_INCLUDED
 
-#pragma once
 #include <iostream>
 #include <SDL.h>
 #include <ctime>
@@ -115,6 +114,8 @@ public:
     static Mix_Chunk* winnerChunk;
     static void playNote(const string& note, int channel, int time)
     {
+        if (note == "")
+            return;
         Mix_Chunk* sound;
         if (note[1] >= '0' && note[1] <= '9')
             sound = notesList[note[0]-'A'][note[1]-'0'];
@@ -146,19 +147,21 @@ class Tile
 {
 private:
     int w, h, pos; static Uint32 curTick;
-    const int channelCount = 4;
-    bool touched = 0, runSecondTimeForChannel[8] = {0,0,0,0,0,0,0,0};//channelCount
+    int channelCount = 4;
+    bool touched = 0;
+    int runNextTimeForChannel[8] = { 4,4,4,4,4,4,4,4 };//channelCount
 public:
     SDL_Rect desR;
-    string note[4][2];//~channelCount
-    string bass[4][2];
+    string note[4][4];//~channelCount
+    string bass[4][4];
     Tile(int width, int height, int stt, int prePos);
-    void setNote(string _note, int channel, bool isSecond, int isBass);
+    void setNote(string _note, int channel, int consecutiveNotes, int isBass);
+    int duration(int channel, int curpos, bool isNote);
     void show();
     void handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
                      PopUp& failPopUp);
     void update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScoreTxt,
-                PopUp& failPopUp);
+                PopUp& failPopUp, int stt);
     int takePos(){
         return pos;
     }
@@ -174,14 +177,13 @@ void handleInput(bool& isRunning, int& fail);
 void update(bool& isRunning, int& fail);
 void clean();
 
-class Global
+struct Global//set a globle variable
 {
-public:
     static SDL_Renderer* renderer;
     static int curTileID, tileCount, lastSeenID, score, highScore;
     static SDL_Texture *bg, *gameBg;
     static Camera camera;
-    static int waitingTimeForSecondNote;
+    static const int waitingTimeForSecondNote;
     static SDL_Rect wrongRect;
     static bool showWrongKey;
 };

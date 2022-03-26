@@ -10,7 +10,7 @@ map<int, string> key0, key1;
 map<int, string> key0up, key0down, key1up, key1down;
 string s;
 
-string songName = "ToiThayHoaVangTrenCoXanh";
+string songName = "DemonSlayer";
 ifstream fin("Raw_" + songName + ".txt");
 ofstream fout(songName + ".txt");
 
