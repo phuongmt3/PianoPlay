@@ -45,7 +45,7 @@ bool isChar(char c)
 
 void addTile(int songID)
 {
-    curSongId = songID; //songID = 7;
+    curSongId = songID; songID = 6;
     ifstream fin("PianoPlay/pianoHub/" + song[songID] + ".txt");
     fin >> Global::tileCount;
     string s;
@@ -265,7 +265,7 @@ void handleInput(bool& isRunning, int& fail){
             showSpeedPopUp = 1;
         else
             showSpeedPopUp = 0;
-        if (fail && inside(x, y, failPopUp.container[3].bloR))
+        if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
             showChooseSong = 1;
         else
             showChooseSong = 0;

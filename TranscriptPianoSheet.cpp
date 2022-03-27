@@ -54,7 +54,7 @@ bool isNum(char c)
 
 void runNote(int& pos)
 {
-    while (s[pos] != ',' && pos < s.length()){//range = [-45,145]
+    while (pos < s.length() && s[pos] != ','){//range = [-45,145]
             //translate first channel
             if (isNum(s[pos])){
                 int num = 0, cntChar = 0; bool sign = 1, u = 0, d = 0, norm = 0;
@@ -152,10 +152,13 @@ int main()
         fin >> s;
         int num = 0;
         int pos = 0;
+        base[0] = 5; base[1] = 3;
         runNote(pos);
+        //runBass(pos);
         fout << s[pos]; pos++;
-        //runNote(pos);
-        runBass(pos);
+        base[0] = 4; base[1] = 3;
+        runNote(pos);
+        //runBass(pos);
         fout << '\n';
     }
 }
