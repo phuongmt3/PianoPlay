@@ -16,10 +16,10 @@ ofstream fout(songName + ".txt");
 
 void setUpDown()//change manually based on the song
 {
-    //down[4] = down[1] = 1;
-    down[1] = 1;
-    //up[2] = up[5] = up[0] = up[3] = up[6] = 1;
-    //up[5] = 1;
+    //down[1] = down[4] = down[0] = down[3] = down[6] = down[2] = down[5] = 1;
+    //down[1] = 1;
+    //up[5] = up[2] = up[6] = up[3] = up[0] = up[4] = up[1] =  1;
+    up[5] = up[2] = up[6] = 1;
 }
 
 void init()
@@ -152,13 +152,13 @@ int main()
         fin >> s;
         int num = 0;
         int pos = 0;
-        base[0] = 5; base[1] = 3;
+        base[0] = 4; base[1] = 3;
         runNote(pos);
         //runBass(pos);
         fout << s[pos]; pos++;
         base[0] = 4; base[1] = 3;
-        runNote(pos);
-        //runBass(pos);
+        //runNote(pos);
+        runBass(pos);
         fout << '\n';
     }
 }

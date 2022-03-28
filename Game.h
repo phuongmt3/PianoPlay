@@ -157,6 +157,7 @@ public:
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, int consecutiveNotes, int isBass);
     int duration(int channel, int curpos, bool isNote);
+    void playNote(int channel, bool isNote, int noteLength, int notePos);
     void show();
     void handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
                      PopUp& failPopUp);

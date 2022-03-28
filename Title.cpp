@@ -49,6 +49,30 @@ int Tile::duration(int channel, int curpos, bool isNote) {
     return cnt;
 }
 
+void Fail(int& fail, PopUp& highScoreTxt, PopUp& failPopUp) {
+    AudioManager::playNote("A0", 0, 0);
+    fail = 1, cout << "You fail because of wrong key\n";
+    Global::camera.stop = 1; Global::lastSeenID = Global::curTileID;
+    if (Global::score > Global::highScore) {
+        Global::highScore = Global::score;
+        highScoreTxt.update();
+    }
+    failPopUp.update();
+    Global::score = 0;
+}
+
+void Tile::playNote(int channel, bool isNote, int noteLength, int notePos)
+{
+    Mix_Pause(channel);
+    string curNote = isNote ? note[channel][notePos] : bass[channel - channelCount][notePos];
+    if (curNote == "!");
+    else if (runNextTimeForChannel[channel] == 4)
+        AudioManager::playNote(curNote, channel, 0);
+    else
+        AudioManager::playNote(curNote, channel,
+            Global::waitingTimeForSecondNote / Global::camera.speed * noteLength);
+}
+
 void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
                                     PopUp& failPopUp)
 {
@@ -57,45 +81,21 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
     //if (desR.y > 500 && !touched){
         cout << SDL_GetTicks() - curTick << '\n';
         curTick = SDL_GetTicks();
-        touched = 1, Global::curTileID++; Global::score++;
+        touched = 1; Global::curTileID++; Global::score++;
         for (int channel = 0; channel < channelCount; channel++){
             int noteLength = duration(channel, 0, 1);
             int bassLength = duration(channel, 0, 0);
-            if (note[channel][0] != "") {
-                Mix_Pause(channel);
-                if (note[channel][0] == "!");
-                else if (noteLength == 4)//if (note[channel][1] == "")
-                    AudioManager::playNote(note[channel][0], channel, 0);
-                else
-                    AudioManager::playNote(note[channel][0], channel,
-                        Global::waitingTimeForSecondNote / Global::camera.speed * noteLength);
-            }
-            if (bass[channel][0] != ""){
-                Mix_Pause(channel + channelCount);
-                if (bass[channel][0] == "!");
-                else if (bassLength == 4)//if (bass[channel][1] == "")
-                    AudioManager::playNote(bass[channel][0], channel + channelCount, 0);
-                else
-                    AudioManager::playNote(bass[channel][0], channel + channelCount,
-                        Global::waitingTimeForSecondNote / Global::camera.speed * bassLength);
-            }
+            if (note[channel][0] != "") 
+                playNote(channel, 1, noteLength, 0);
+            if (bass[channel][0] != "")
+                playNote(channel + channelCount, 0, bassLength, 0);
         }
     }
     else {
-        AudioManager::playNote("A0", 0, 0);
-        fail = 1, cout << "You fail because of wrong key\n";
-        Global::camera.stop = 1; Global::lastSeenID = Global::curTileID;
+        Fail(fail, highScoreTxt, failPopUp);
         Global::showWrongKey = 1;
         Global::wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
-
-        if (Global::score > Global::highScore){
-            Global::highScore = Global::score;
-            highScoreTxt.update();
-        }
-        failPopUp.update();
-        Global::score = 0;
     }
-    string str = to_string(Global::score);
     scoreTxt.update();
 }
 
@@ -108,17 +108,8 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
     }
     desR.y += int(Global::camera.y * Global::camera.speed);
     if (desR.y > GAME_HEIGHT && !touched){
-        AudioManager::playNote("A0", 0, 0);
-        fail = 1, cout << "You fail because of untouched\n";
-        Global::camera.stop = 1; Global::lastSeenID = Global::curTileID;
+        Fail(fail, highScoreTxt, failPopUp);
         desR.y -= (gobackLength + int(Global::camera.y * Global::camera.speed));
-
-        if (Global::score > Global::highScore){
-            Global::highScore = Global::score;
-            highScoreTxt.update();
-        }
-        failPopUp.update();
-        Global::score = 0;
         scoreTxt.update();
     }
     if (stt != Global::curTileID - 1)
@@ -129,47 +120,23 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
             if (!Mix_Playing(channel)) {
                 if (channel < channelCount){
                     int noteLength = duration(channel, runNextTimeForChannel[channel], 1);
-                    if (note[channel][notePos] == "!");
-                    else if (runNextTimeForChannel[channel] == 4)
-                        AudioManager::playNote(note[channel][notePos], channel, 0);
-                    else
-                        AudioManager::playNote(note[channel][notePos], channel,
-                            Global::waitingTimeForSecondNote / Global::camera.speed * noteLength);
+                    playNote(channel, 1, noteLength, notePos);
                 }
                 else{
                     int bassLength = duration(channel - channelCount, runNextTimeForChannel[channel], 0);
-                    if (bass[channel - channelCount][notePos] == "!");
-                    else if (runNextTimeForChannel[channel] == 4)
-                        AudioManager::playNote(bass[channel - channelCount][notePos], channel, 0);
-                    else
-                        AudioManager::playNote(bass[channel - channelCount][notePos], channel,
-                            Global::waitingTimeForSecondNote / Global::camera.speed * bassLength);
+                    playNote(channel, 0, bassLength, notePos);
                 }
             }
             else if (SDL_GetTicks() - curTick >= int(Global::waitingTimeForSecondNote / Global::camera.speed
                                             * runNextTimeForChannel[channel])) {
                 if (channel < channelCount && note[channel][0] == ""){
-                    Mix_Pause(channel);
                     int noteLength = duration(channel, runNextTimeForChannel[channel], 1);
-                    if (note[channel][notePos] == "!");
-                    else if (runNextTimeForChannel[channel] == 4)
-                        AudioManager::playNote(note[channel][notePos], channel, 0);
-                    else
-                        AudioManager::playNote(note[channel][notePos], channel,
-                            Global::waitingTimeForSecondNote / Global::camera.speed * noteLength);
+                    playNote(channel, 1, noteLength, notePos);
                 }
                 else if (channel >= channelCount && bass[channel - channelCount][0] == ""){
-                    Mix_Pause(channel);
                     int bassLength = duration(channel - channelCount, runNextTimeForChannel[channel], 0);
-                    if (bass[channel - channelCount][notePos] == "!");
-                    else if (runNextTimeForChannel[channel] == 4)
-                        AudioManager::playNote(bass[channel - channelCount][notePos], channel, 0);
-                    else
-                        AudioManager::playNote(bass[channel - channelCount][notePos], channel,
-                            Global::waitingTimeForSecondNote / Global::camera.speed * bassLength);
+                    playNote(channel, 0, bassLength, notePos);
                 }
             }
     }
 }
-//if (runNextNote() === bool)
-//thi k p lap lai code
