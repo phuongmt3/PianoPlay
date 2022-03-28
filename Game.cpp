@@ -1,30 +1,19 @@
 #include "Game.h"
 
-SDL_Window* window;
-SDL_Renderer* Global::renderer;
-SDL_Event event;//why event cannot be a pointer
-SDL_Texture *Global::bg, *Global::gameBg;
-Camera Global::camera;
 Mix_Chunk* AudioManager::notesList[14][8];
 Mix_Chunk* AudioManager::winnerChunk;
 
-vector<Tile> tileList;
-SDL_Rect Global::wrongRect;
-bool Global::showWrongKey = 0;
-int Global::tileCount;
-int Global::curTileID, Global::lastSeenID, Global::score, Global::highScore;
-const int Global::waitingTimeForSecondNote = 90;
 Uint32 Tile::curTick;
 
 PopUp scoreTxt(20,20,200,250);
 PopUp highScoreTxt(770,20,200,250);
 PopUp failPopUp(300,300,400,300);
-Block speedTxt;
+Block speedTxt, autoPlay;
 PopUp speedPopUp(50,550,150,250);
 PopUp chooseSongPopUp(300, 200, 400, 475);
 bool showSpeedPopUp = 0, showChooseSong = 0;
-int songCnt = 8, curSongId;
 
+int songCnt = 8;
 string song[] = {
         "TwinkleTwinkleLittleStar",
         "MyAll_AyumiHamasaki",
@@ -43,19 +32,19 @@ bool isChar(char c)
     return 0;
 }
 
-void addTile(int songID)
+void addTile(int songID, Game* game)
 {
-    curSongId = songID; songID = 6;
+    game->curSongId = songID; songID = 6;
     ifstream fin("PianoPlay/pianoHub/" + song[songID] + ".txt");
-    fin >> Global::tileCount;
+    fin >> game->tileCount;
     string s;
-    for (int i = 0; i < Global::tileCount; i++){
+    for (int i = 0; i < game->tileCount; i++){
         fin >> s;
         if (i > 0)
-            tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,tileList[i - 1].takePos()));
+            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i, game->tileList[i - 1].takePos()));
         else
-            tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4));
-        Tile* curTile = &tileList.back();
+            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4));
+        Tile* curTile = &game->tileList.back();
         int pos = 0, channel = 0;
         int consecutiveNotes = 0;
         for (int bass = 0; bass < 2; bass++){
@@ -97,11 +86,11 @@ void addSound()
         }
 }
 
-void showTile()
+void showTile(Game* game)
 {
-    for (int i = Global::lastSeenID; i < tileList.size() &&
-                                    i < Global::lastSeenID + 5; i++)
-        tileList[i].show();
+    for (int i = game->lastSeenID; i < game->tileList.size() &&
+                                    i < game->lastSeenID + 5; i++)
+        game->tileList[i].show(game->renderer);
 }
 
 bool inside(const int& x, const int& y, const SDL_Rect& rec)
@@ -113,8 +102,8 @@ bool inside(const int& x, const int& y, const SDL_Rect& rec)
     return 1;
 }
 
-void init(const char* title, int xpos, int ypos,
-              int width, int height, bool fullscreen, bool& isRunning, int& fail){
+void Game::init(const char* title, int xpos, int ypos,
+              int width, int height, bool fullscreen){
     int flag = 0;
     if (fullscreen)
         flag = SDL_WINDOW_FULLSCREEN;
@@ -124,9 +113,9 @@ void init(const char* title, int xpos, int ypos,
         if (window){
             cout << "Created window!\n";
         }
-        Global::renderer = SDL_CreateRenderer(window, -1, 0);
-        SDL_SetRenderDrawBlendMode(Global::renderer,SDL_BLENDMODE_BLEND);
-        if (Global::renderer)
+        renderer = SDL_CreateRenderer(window, -1, 0);
+        SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND);
+        if (renderer)
             cout << "Created renderer\n";
         else cout << "Cannot create renderer\n";
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
@@ -136,72 +125,76 @@ void init(const char* title, int xpos, int ypos,
         isRunning = 1;
     }
     else isRunning = 0;
-    Global::camera.stop = 1; fail = 0;
-    Global::gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png");
-    Global::bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png");
+    camera.stop = 1; fail = 0;
+    gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
+    bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     addSound();
-    addTile(rand() % songCnt);
+    addTile(rand() % songCnt, this);
 
     scoreTxt.setColor(transparent);
-    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white);
-    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white);
+    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
+    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white,renderer);
 
     highScoreTxt.setColor(transparent);
-    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,white);
-    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white);
+    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,white, renderer);
+    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white, renderer);
 
     failPopUp.setColor(lightGrey);
-    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,white);
-    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,white);
-    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,red);
-    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,white);
+    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,white, renderer);
+    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,white, renderer);
+    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,red, renderer);
+    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,white, renderer);
 
-    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,0,70,white);
+    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 0, 70, white, renderer);
+
+    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,0,70,white, renderer);
     speedPopUp.setColor(transparent);
-    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,white);
-    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,white);
-    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,black);
-    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,white);
-    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,white);
+    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,white, renderer);
+    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,white, renderer);
+    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,black, renderer);
+    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,white, renderer);
+    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,white, renderer);
 
     chooseSongPopUp.setColor(darkGrey);
-    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white);
+    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white, renderer);
     for (int i = 0; i < songCnt; i++)
-        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 60, white);
+        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 60, white, renderer);
     chooseSongPopUp.limitMoveUp = 100;
 }
 
-void render(int& fail){
+void Game::render(){
     if (fail == 1){
-        if (Global::showWrongKey){
-            SDL_SetRenderDrawColor(Global::renderer,255,13,13,255);
-            SDL_RenderFillRect(Global::renderer, &Global::wrongRect);
-            SDL_RenderPresent(Global::renderer);
-            Global::showWrongKey = 0;
+        if (showWrongKey){
+            SDL_SetRenderDrawColor(renderer,255,13,13,255);
+            SDL_RenderFillRect(renderer, &wrongRect);
+            SDL_RenderPresent(renderer);
+            showWrongKey = 0;
         }
         SDL_Delay(3000);
         fail = 2;
     }
-    SDL_RenderClear(Global::renderer);
+    SDL_RenderClear(renderer);
     SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH/2 - GAME_WIDTH/2,
                                                     WINDOW_HEIGHT/2 - GAME_HEIGHT/2,
                                                     GAME_WIDTH,GAME_HEIGHT};
     SDL_Rect srcRBg = {0,0,1000,900}, desRBg = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
-    TextureManager::drawImage(Global::bg, srcRBg, desRBg);
-    TextureManager::drawImage(Global::gameBg, srcRGame, desRGame);
-    showTile();
-    scoreTxt.show(); highScoreTxt.show(); speedTxt.show();
+    TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
+    TextureManager::drawImage(gameBg, srcRGame, desRGame, this->renderer);
+    showTile(this);
+    scoreTxt.show(renderer); highScoreTxt.show(renderer); 
+    speedTxt.show(); autoPlay.show();
     if (showSpeedPopUp)
-        speedPopUp.show();
+        speedPopUp.show(renderer);
     if (fail) 
-        failPopUp.show();
+        failPopUp.show(renderer);
     if (showChooseSong) 
-        chooseSongPopUp.show();
-    SDL_RenderPresent(Global::renderer);
+        chooseSongPopUp.show(renderer);
+    SDL_RenderPresent(renderer);
 }
 
-void handleInput(bool& isRunning, int& fail){
+void Game::handleInput(){
+    SDL_Event event;
     SDL_PollEvent(&event);
     switch(event.type)
     {
@@ -233,6 +226,17 @@ void handleInput(bool& isRunning, int& fail){
 
             }
         }
+
+        if (!isAutoPlay) {
+            if (inside(x, y, autoPlay.bloR)) {
+                autoPlay.setColor(white);
+                autoPlay.setText(0, black);
+            }
+            else {
+                autoPlay.setColor(blueTranparent);
+                autoPlay.setText(0, white);
+            }
+        }
     }break;
     case SDL_MOUSEBUTTONDOWN:
     {
@@ -240,7 +244,7 @@ void handleInput(bool& isRunning, int& fail){
         if (showSpeedPopUp){
             for (int i = 0; i < 5; i++) {
                 if (inside(x, y, speedPopUp.container[i].bloR)) {
-                    Global::camera.speed = 0.5 + 0.5 * i;
+                    camera.speed = 0.5 + 0.5 * i;
                     speedPopUp.container[i].setColor(white);
                     speedPopUp.container[i].setText(-1, black);
                 }
@@ -253,8 +257,8 @@ void handleInput(bool& isRunning, int& fail){
             for (int i = 1; i <= songCnt; i++)
                 if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
                     tileList.clear();
-                    addTile(i - 1);
-                    Global::curTileID = 0; Global::lastSeenID = 0;
+                    addTile(i - 1, this);
+                    curTileID = 0; lastSeenID = 0;
                 }
         }
     }break;
@@ -265,10 +269,24 @@ void handleInput(bool& isRunning, int& fail){
             showSpeedPopUp = 1;
         else
             showSpeedPopUp = 0;
+
         if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
             showChooseSong = 1;
         else
             showChooseSong = 0;
+
+        if (inside(x, y, autoPlay.bloR)) {
+            if (!isAutoPlay) {
+                isAutoPlay = 1;
+                autoPlay.setColor(black);
+                autoPlay.setText(0, red);
+            }
+            else {
+                isAutoPlay = 0; camera.stop = 1;
+                autoPlay.setColor(white);
+                autoPlay.setText(0, black);
+            }
+        }
     }break;
     case SDL_MOUSEWHEEL:
     {
@@ -291,27 +309,27 @@ void handleInput(bool& isRunning, int& fail){
             switch(event.key.keysym.sym)
             {
                 case SDLK_f:
-                    if (!Global::camera.stop)
-                        tileList[Global::curTileID].handleInput(0, fail, scoreTxt, highScoreTxt, failPopUp);
+                    if (!camera.stop)
+                        tileList[curTileID].handleInput(0, fail, scoreTxt, highScoreTxt, failPopUp, this);
                     break;
                 case SDLK_g:
-                    if (!Global::camera.stop)
-                        tileList[Global::curTileID].handleInput(1, fail, scoreTxt, highScoreTxt, failPopUp);
+                    if (!camera.stop)
+                        tileList[curTileID].handleInput(1, fail, scoreTxt, highScoreTxt, failPopUp, this);
                     break;
                 case SDLK_h:
-                    if (!Global::camera.stop)
-                        tileList[Global::curTileID].handleInput(2, fail, scoreTxt, highScoreTxt, failPopUp);
+                    if (!camera.stop)
+                        tileList[curTileID].handleInput(2, fail, scoreTxt, highScoreTxt, failPopUp, this);
                     break;
                 case SDLK_j:
-                    if (!Global::camera.stop)
-                        tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
+                    if (!camera.stop)
+                        tileList[curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp, this);
                     break;
                 case SDLK_SPACE:
                 {
-                    if (Global::camera.stop)
-                        Global::camera.stop = 0;
+                    if (camera.stop)
+                        camera.stop = 0;
                     else
-                        Global::camera.stop = 1;
+                        camera.stop = 1;
                 }
                 break;
                 case SDLK_ESCAPE:
@@ -332,39 +350,40 @@ void handleInput(bool& isRunning, int& fail){
     }break;
     default: break;
     }
-    //tileList[Global::curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp);
+    if (isAutoPlay)
+        tileList[curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp, this);
 }
 
-void update(bool& isRunning, int& fail){
-    Global::camera.update();
+void Game::update(){
+    camera.update();
     int goback = 0;
-    if (Global::curTileID < tileList.size())
-        goback = tileList[Global::curTileID].desR.y + tileList[Global::curTileID].desR.h;
-    for (int i = Global::lastSeenID; i < tileList.size(); i++)
-        tileList[i].update(fail, goback, scoreTxt, highScoreTxt, failPopUp, i);
-    while (Global::lastSeenID > 0) {
+    if (curTileID < tileList.size())
+        goback = tileList[curTileID].desR.y + tileList[curTileID].desR.h;
+    for (int i = lastSeenID; i < tileList.size(); i++)
+        tileList[i].update(fail, goback, scoreTxt, highScoreTxt, failPopUp, i, this);
+    while (lastSeenID > 0) {
         tileList.erase(tileList.begin());
-        Global::curTileID--;
-        Global::lastSeenID--;
+        curTileID--;
+        lastSeenID--;
     }
-    if (tileList.size() > 0 && tileList[Global::lastSeenID].desR.y > WINDOW_HEIGHT &&
-        tileList[Global::lastSeenID].hadTouched()) {
+    if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT &&
+        tileList[lastSeenID].hadTouched()) {
         tileList.erase(tileList.begin());
-        Global::curTileID--;
+        curTileID--;
     }
     if (tileList.empty()){
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
         SDL_Delay(2000);
         int nextID = rand() % songCnt;
-        nextID == curSongId ? addTile((nextID + 1) % songCnt) : addTile(nextID);
-        Global::curTileID = 0; Global::lastSeenID = 0;
+        nextID == curSongId ? addTile((nextID + 1) % songCnt, this) : addTile(nextID, this);
+        curTileID = 0; lastSeenID = 0;
     }
 }
 
-void clean(){
+void Game::clean(){
     Mix_CloseAudio();
     SDL_DestroyWindow(window);
-    SDL_DestroyRenderer(Global::renderer);
+    SDL_DestroyRenderer(renderer);
     SDL_Quit();
     cout << "Game clean!";
 }

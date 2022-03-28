@@ -31,7 +31,7 @@ enum Color {
     white, red, darkGrey, lightGrey, blue, transparent, black, blueTranparent
 };
 
-class Global;
+class Game;
 class Camera
 {
 public:
@@ -52,10 +52,11 @@ private:
     TTF_Font *gFont = nullptr;
     string text;
     SDL_Texture* texture;
+    SDL_Renderer* renderer;
 public:
     SDL_Rect desR;
     Text();
-    Text(const string& _text, int x, int y, int fontSize, Color textColor);
+    Text(const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
     void updateText(const string& newText);
     void updateFont(int fontSize);
     void updateColor(Color type);
@@ -71,17 +72,18 @@ class Block
 private:
     string name;
     Color colorType;
+    SDL_Renderer* renderer;
 public:
     Text content;
     SDL_Rect bloR;
 
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
-          const string& _text, int x, int y, int fontSize, Color textColor);
+          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
     void setText(int fontType, Color colorType);
     void setColor(Color newColor);
     void show();
-    void update();
+    void update(const Game* game);
     void changePos(int x, int y);
     string getName() {
         return name;
@@ -99,10 +101,10 @@ public:
 
     PopUp(int x, int y, int w, int h);
     void addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
-          const string& _text, int x, int y, int fontSize, Color textColor);
+          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
     void setColor(Color newColor);
-    void update();
-    void show();
+    void update(const Game* game);
+    void show(SDL_Renderer* renderer);
     bool visibleBlock(int i);
     int takeY_BasePopUp(int i);
 };
@@ -139,8 +141,8 @@ public:
 class TextureManager
 {
 public:
-    static SDL_Texture* takeTexture(const char* link);
-    static void drawImage(SDL_Texture* tex, SDL_Rect src, SDL_Rect des);
+    static SDL_Texture* takeTexture(const char* link, SDL_Renderer* renderer);
+    static void drawImage(SDL_Texture* tex, SDL_Rect src, SDL_Rect des, SDL_Renderer* renderer);
 };
 
 class Tile
@@ -157,35 +159,39 @@ public:
     Tile(int width, int height, int stt, int prePos);
     void setNote(string _note, int channel, int consecutiveNotes, int isBass);
     int duration(int channel, int curpos, bool isNote);
-    void playNote(int channel, bool isNote, int noteLength, int notePos);
-    void show();
+    void playNote(int channel, bool isNote, int noteLength, int notePos, const Game* game);
+    void rightFirstNote(Game* game);
+    void show(SDL_Renderer* renderer);
     void handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
-                     PopUp& failPopUp);
+                     PopUp& failPopUp, Game* game);
     void update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScoreTxt,
-                PopUp& failPopUp, int stt);
-    int takePos(){
-        return pos;
-    }
-    bool hadTouched(){
-        return touched;
-    }
+                PopUp& failPopUp, int stt, Game* game);
+    int takePos() { return pos; }
+    bool hadTouched(){ return touched; }
 };
 
-void init(const char* title, int xpos, int ypos,
-              int width, int height, bool fullscreen, bool& isRunning, int& fail);
-void render(int& fail);
-void handleInput(bool& isRunning, int& fail);
-void update(bool& isRunning, int& fail);
-void clean();
-
-struct Global//set a globle variable
+class Game
 {
-    static SDL_Renderer* renderer;
-    static int curTileID, tileCount, lastSeenID, score, highScore;
-    static SDL_Texture *bg, *gameBg;
-    static Camera camera;
-    static const int waitingTimeForSecondNote;
-    static SDL_Rect wrongRect;
-    static bool showWrongKey;
+private:
+    SDL_Window* window;
+    SDL_Texture* bg, * gameBg;
+
+public:
+    SDL_Renderer* renderer;
+    bool isRunning; int fail;
+    int curTileID, tileCount, lastSeenID, score, highScore;
+    Camera camera;
+    const int waitingTimeForAQuarterNote = 90;
+    SDL_Rect wrongRect;
+    bool showWrongKey = 0, isAutoPlay = 0;
+    vector<Tile> tileList;
+    int curSongId;
+
+    void init(const char* title, int xpos, int ypos,
+                  int width, int height, bool fullscreen);
+    void render();
+    void handleInput();
+    void update();
+    void clean();
 };
 #endif // GAME_H_INCLUDED
