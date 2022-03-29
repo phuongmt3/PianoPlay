@@ -4,9 +4,7 @@ int main(int argc, char* argv[])
 {
     srand(time(0));
     Game* game = new Game;
-    game->init("PianoTitles",SDL_WINDOWPOS_CENTERED,
-         SDL_WINDOWPOS_CENTERED,
-         WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    game->init("PianoTitles");
     int framesPerSec = 60;
     const int secPerFrame = 1000/framesPerSec;
     do{

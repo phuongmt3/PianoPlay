@@ -2,11 +2,11 @@
 
 Block::Block(){}
 Block::Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
-          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer){
-    renderer = Orenderer;
-    bloR = {blox, bloy, blow, bloh};
+          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio){
+    renderer = Orenderer; ratio = _ratio;
+    bloR = {int(blox * ratio), int(bloy * ratio), int(blow * ratio), int(bloh * ratio)};
     colorType = blockColor;
-    content = Text(_text, x + blox, y + bloy, fontSize, textColor, renderer);
+    content = Text(_text, (x * ratio + bloR.x)/ratio + 1, (y * ratio + bloR.y)/ratio + 1, fontSize, textColor, renderer, ratio);
     name = _name;
 }
 

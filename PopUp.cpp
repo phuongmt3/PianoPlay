@@ -1,14 +1,22 @@
 #include "Game.h"
 
-PopUp::PopUp(int x, int y, int w, int h){
-    desR = {x, y, w, h};
-    limitMoveUp = 0; limitMoveDown = h;
+PopUp::PopUp(int x, int y, int w, int h, double _ratio){
+    ratio = _ratio;
+    desR = {int(x * ratio), int(y * ratio), int(w * ratio), int(h * ratio) };
+    limitMoveUpValue = 0; limitMoveDownValue = h * ratio;
+}
+
+void PopUp::setLimit(int limitUp, int limitDown) {
+    if (limitUp != -1)
+        limitMoveUpValue = limitUp * ratio;
+    if (limitDown != -1)
+        limitMoveDownValue = limitDown * ratio;
 }
 
 void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
       const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer){
-    container.push_back(Block(_name,blox + desR.x, bloy + desR.y,blow,bloh,blockColor,
-                            _text,x,y,fontSize,textColor,Orenderer));
+    container.push_back(Block(_name,(blox * ratio + desR.x)/ratio + 1, (bloy * ratio + desR.y)/ratio + 1,blow,bloh,blockColor,
+                            _text,x,y,fontSize,textColor,Orenderer,ratio));
 }
 void PopUp::update(const Game* game){
     for (auto& i: container)
@@ -30,8 +38,8 @@ void PopUp::show(SDL_Renderer* renderer){
 bool PopUp::visibleBlock(int i) {
     if (container[i].getName() == "title")
         return 1;
-    if (takeY_BasePopUp(i) >= limitMoveUp &&
-        takeY_BasePopUp(i) + container[i].bloR.h <= limitMoveDown)
+    if (takeY_BasePopUp(i) >= limitMoveUpValue &&
+        takeY_BasePopUp(i) + container[i].bloR.h <= limitMoveDownValue)
         return 1;
     return 0;
 }

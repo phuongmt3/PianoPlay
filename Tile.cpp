@@ -1,15 +1,16 @@
 #include "Game.h"
 
-Tile::Tile(int width, int height, int stt, int prePos)
+Tile::Tile(int width, int height, int stt, int prePos, double _ratio)
 {
-    w = width; h = height;
+    ratio = _ratio;
+    w = width * ratio; h = height * ratio;
     pos = rand()%4;
     if (pos == prePos)
         pos = (pos + 1)%4;
     desR.h = h;
     desR.w = w;
-    desR.x = pos * w + WINDOW_WIDTH/2 - GAME_WIDTH/2;
-    desR.y = -h - stt * h + WINDOW_HEIGHT/2 - GAME_HEIGHT/2;
+    desR.x = pos * w + WINDOW_WIDTH * ratio/2 - GAME_WIDTH * ratio/2;
+    desR.y = -h - stt * h;
 }
 
 void Tile::setNote(string _note, int channel, int consecutiveNotes, int isBass)
@@ -103,7 +104,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
     else {
         Fail(fail, highScoreTxt, failPopUp, game);
         game->showWrongKey = 1;
-        game->wrongRect = {posInput * w + WINDOW_WIDTH/2 - GAME_WIDTH/2, desR.y, w, h};
+        game->wrongRect = {int(posInput * w + WINDOW_WIDTH * ratio/2 - GAME_WIDTH * ratio/2), desR.y, w, h};
     }
     scoreTxt.update(game);
 }
@@ -112,13 +113,13 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
                    PopUp& failPopUp, int stt, Game* game)
 {
     if (fail){
-        desR.y -= gobackLength;
+        desR.y -= gobackLength * ratio + 1;
         return;
     }
     desR.y += int(game->camera.y * game->camera.speed);
-    if (desR.y > GAME_HEIGHT && !touched){
+    if (desR.y > GAME_HEIGHT * ratio + 10 && !touched){
         Fail(fail, highScoreTxt, failPopUp, game);
-        desR.y -= (gobackLength + int(game->camera.y * game->camera.speed));
+        desR.y -= (gobackLength + int(game->camera.y * game->camera.speed)) * ratio;
         scoreTxt.update(game);
     }
     if (stt != game->curTileID - 1)

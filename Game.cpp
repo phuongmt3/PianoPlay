@@ -5,13 +5,14 @@ Mix_Chunk* AudioManager::winnerChunk;
 
 Uint32 Tile::curTick;
 
-PopUp scoreTxt(20,20,200,250);
-PopUp highScoreTxt(770,20,200,250);
-PopUp failPopUp(300,300,400,300);
+PopUp scoreTxt;
+PopUp highScoreTxt;
+PopUp failPopUp;
 Block speedTxt, autoPlay;
-PopUp speedPopUp(50,550,150,250);
-PopUp chooseSongPopUp(300, 200, 400, 475);
+PopUp speedPopUp;
+PopUp chooseSongPopUp;
 bool showSpeedPopUp = 0, showChooseSong = 0;
+int cur1stSongInList = 1;
 
 int songCnt = 8;
 string song[] = {
@@ -34,16 +35,16 @@ bool isChar(char c)
 
 void addTile(int songID, Game* game)
 {
-    game->curSongId = songID; songID = 6;
+    game->curSongId = songID; //songID = 6;
     ifstream fin("PianoPlay/pianoHub/" + song[songID] + ".txt");
     fin >> game->tileCount;
     string s;
     for (int i = 0; i < game->tileCount; i++){
         fin >> s;
         if (i > 0)
-            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i, game->tileList[i - 1].takePos()));
+            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i, game->tileList[i - 1].takePos(),game->ratio));
         else
-            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4));
+            game->tileList.push_back(Tile(GAME_WIDTH/4,GAME_HEIGHT/4,i,4,game->ratio));
         Tile* curTile = &game->tileList.back();
         int pos = 0, channel = 0;
         int consecutiveNotes = 0;
@@ -102,14 +103,14 @@ bool inside(const int& x, const int& y, const SDL_Rect& rec)
     return 1;
 }
 
-void Game::init(const char* title, int xpos, int ypos,
-              int width, int height, bool fullscreen){
-    int flag = 0;
-    if (fullscreen)
-        flag = SDL_WINDOW_FULLSCREEN;
+void Game::init(const char* title){
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0){
         cout << "Init completed!\n";
-        window = SDL_CreateWindow(title,xpos,ypos,width,height,flag);
+        SDL_DisplayMode DM;
+        SDL_GetCurrentDisplayMode(0, &DM);
+        ratio = DM.h / double(WINDOW_HEIGHT);
+        window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio,0);
         if (window){
             cout << "Created window!\n";
         }
@@ -132,6 +133,12 @@ void Game::init(const char* title, int xpos, int ypos,
     addSound();
     addTile(rand() % songCnt, this);
 
+    scoreTxt = PopUp(20, 20, 200, 250, ratio);
+    highScoreTxt = PopUp(770, 20, 200, 250, ratio);
+    failPopUp = PopUp(300, 300, 400, 300, ratio);
+    speedPopUp = PopUp(50, 550, 150, 253, ratio);
+    chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
+
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
     scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white,renderer);
@@ -146,10 +153,10 @@ void Game::init(const char* title, int xpos, int ypos,
     failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,red, renderer);
     failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,white, renderer);
 
-    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 0, 70, white, renderer);
+    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, white, renderer, ratio);
 
-    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,0,70,white, renderer);
-    speedPopUp.setColor(transparent);
+    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,10,70,white, renderer, ratio);
+    speedPopUp.setColor(lightGrey);
     speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,white, renderer);
     speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,white, renderer);
     speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,black, renderer);
@@ -160,7 +167,7 @@ void Game::init(const char* title, int xpos, int ypos,
     chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white, renderer);
     for (int i = 0; i < songCnt; i++)
         chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 60, white, renderer);
-    chooseSongPopUp.limitMoveUp = 100;
+    chooseSongPopUp.setLimit(100, -1);
 }
 
 void Game::render(){
@@ -175,10 +182,10 @@ void Game::render(){
         fail = 2;
     }
     SDL_RenderClear(renderer);
-    SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH/2 - GAME_WIDTH/2,
-                                                    WINDOW_HEIGHT/2 - GAME_HEIGHT/2,
-                                                    GAME_WIDTH,GAME_HEIGHT};
-    SDL_Rect srcRBg = {0,0,1000,900}, desRBg = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
+    SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH * ratio /2 - GAME_WIDTH * ratio /2,
+                                                    WINDOW_HEIGHT* ratio /2 - GAME_HEIGHT * ratio /2,
+                                                    GAME_WIDTH* ratio,GAME_HEIGHT* ratio };
+    SDL_Rect srcRBg = {0,0,1000,900}, desRBg = {0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
     TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
     TextureManager::drawImage(gameBg, srcRGame, desRGame, this->renderer);
     showTile(this);
@@ -273,8 +280,8 @@ void Game::handleInput(){
         if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
             showChooseSong = 1;
         else {
-            showChooseSong = 0;
-            int comeback = chooseSongPopUp.limitMoveUp - chooseSongPopUp.takeY_BasePopUp(1);
+            showChooseSong = 0; cur1stSongInList = 1;
+            int comeback = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(1);
             if (comeback > 0)
                 for (int i = 1; i <= songCnt; i++)
                     chooseSongPopUp.container[i].changePos(0, comeback);
@@ -297,14 +304,17 @@ void Game::handleInput(){
     {
         int x, y; SDL_GetMouseState(&x, &y);
         if (inside(x, y, chooseSongPopUp.desR)) {
-            if (event.wheel.y < 0 && chooseSongPopUp.takeY_BasePopUp(songCnt) +
-                chooseSongPopUp.container[songCnt].bloR.h != chooseSongPopUp.limitMoveDown) {
+            if (event.wheel.y < 0 && cur1stSongInList + 4 < songCnt) {
+                cur1stSongInList++;
+                int step = chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - chooseSongPopUp.limitMoveUp();
                 for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, -chooseSongPopUp.container[i].bloR.h);
+                    chooseSongPopUp.container[i].changePos(0, -step);
             }
-            else if (event.wheel.y > 0 && chooseSongPopUp.takeY_BasePopUp(1) != chooseSongPopUp.limitMoveUp) {
+            else if (event.wheel.y > 0 && cur1stSongInList > 1) {
+                cur1stSongInList--;
+                int step = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
                 for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, chooseSongPopUp.container[i].bloR.h);
+                    chooseSongPopUp.container[i].changePos(0, step);
             }
         }
     }break;
@@ -371,7 +381,7 @@ void Game::update(){
         curTileID--;
         lastSeenID--;
     }
-    if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT &&
+    if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT * ratio &&
         tileList[lastSeenID].hadTouched()) {
         tileList.erase(tileList.begin());
         curTileID--;

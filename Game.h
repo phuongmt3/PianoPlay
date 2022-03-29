@@ -12,10 +12,11 @@
 #include "SDL_ttf.h"
 using namespace std;
 
-const int WINDOW_WIDTH = 1000;
 const int WINDOW_HEIGHT = 900;
-const int GAME_WIDTH = 500;
-const int GAME_HEIGHT = 900;
+const int WINDOW_WIDTH = WINDOW_HEIGHT / 0.9;
+const int GAME_HEIGHT = WINDOW_HEIGHT;
+const int GAME_WIDTH = GAME_HEIGHT / 1.8;
+
 
 const SDL_Color colorList[] = {
     { 255, 255, 255, 255 }, 
@@ -53,10 +54,11 @@ private:
     string text;
     SDL_Texture* texture;
     SDL_Renderer* renderer;
+    double ratio;
 public:
     SDL_Rect desR;
     Text();
-    Text(const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
+    Text(const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio);
     void updateText(const string& newText);
     void updateFont(int fontSize);
     void updateColor(Color type);
@@ -73,13 +75,14 @@ private:
     string name;
     Color colorType;
     SDL_Renderer* renderer;
+    double ratio;
 public:
     Text content;
     SDL_Rect bloR;
 
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
-          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
+          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio);
     void setText(int fontType, Color colorType);
     void setColor(Color newColor);
     void show();
@@ -94,19 +97,24 @@ class PopUp
 {
 private:
     Color colorType;
+    double ratio;
+    int limitMoveUpValue, limitMoveDownValue;
 public:
     vector<Block> container;
     SDL_Rect desR;
-    int limitMoveUp, limitMoveDown;
 
-    PopUp(int x, int y, int w, int h);
+    PopUp(){}
+    PopUp(int x, int y, int w, int h, double _ratio);
     void addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
           const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
+    void setLimit(int limitUp, int limitDown);
     void setColor(Color newColor);
     void update(const Game* game);
     void show(SDL_Renderer* renderer);
     bool visibleBlock(int i);
     int takeY_BasePopUp(int i);
+    int limitMoveUp() { return limitMoveUpValue;  }
+    int limitMoveDown() { return limitMoveDownValue;  }
 };
 
 class AudioManager
@@ -149,6 +157,7 @@ class Tile
 {
 private:
     int w, h, pos; static Uint32 curTick;
+    double ratio;
     int channelCount = 4;
     bool touched = 0;
     int runNextTimeForChannel[8] = { 4,4,4,4,4,4,4,4 };//channelCount
@@ -156,7 +165,7 @@ public:
     SDL_Rect desR;
     string note[4][4];//~channelCount
     string bass[4][4];
-    Tile(int width, int height, int stt, int prePos);
+    Tile(int width, int height, int stt, int prePos, double _ratio);
     void setNote(string _note, int channel, int consecutiveNotes, int isBass);
     int duration(int channel, int curpos, bool isNote);
     void playNote(int channel, bool isNote, int noteLength, int notePos, const Game* game);
@@ -177,6 +186,7 @@ private:
     SDL_Texture* bg, * gameBg;
 
 public:
+    double ratio;
     SDL_Renderer* renderer;
     bool isRunning; int fail;
     int curTileID, tileCount, lastSeenID, score, highScore;
@@ -187,8 +197,7 @@ public:
     vector<Tile> tileList;
     int curSongId;
 
-    void init(const char* title, int xpos, int ypos,
-                  int width, int height, bool fullscreen);
+    void init(const char* title);
     void render();
     void handleInput();
     void update();
