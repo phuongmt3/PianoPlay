@@ -272,8 +272,13 @@ void Game::handleInput(){
 
         if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
             showChooseSong = 1;
-        else
+        else {
             showChooseSong = 0;
+            int comeback = chooseSongPopUp.limitMoveUp - chooseSongPopUp.takeY_BasePopUp(1);
+            if (comeback > 0)
+                for (int i = 1; i <= songCnt; i++)
+                    chooseSongPopUp.container[i].changePos(0, comeback);
+        }
 
         if (inside(x, y, autoPlay.bloR)) {
             if (!isAutoPlay) {
@@ -350,7 +355,7 @@ void Game::handleInput(){
     }break;
     default: break;
     }
-    if (isAutoPlay)
+    if (isAutoPlay && curTileID < tileList.size())
         tileList[curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp, this);
 }
 
