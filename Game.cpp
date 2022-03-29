@@ -126,7 +126,7 @@ void Game::init(const char* title){
         isRunning = 1;
     }
     else isRunning = 0;
-    camera.stop = 1; fail = 0;
+    camera.stop = 1; camera.speed *= ratio; fail = 0;
     gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
     bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
@@ -381,7 +381,7 @@ void Game::update(){
         curTileID--;
         lastSeenID--;
     }
-    if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT * ratio &&
+    if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT * ratio + 10 &&
         tileList[lastSeenID].hadTouched()) {
         tileList.erase(tileList.begin());
         curTileID--;
