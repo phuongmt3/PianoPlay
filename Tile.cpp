@@ -71,7 +71,7 @@ void Tile::playNote(int channel, bool isNote, int noteLength, int notePos, const
         AudioManager::playNote(curNote, channel, 0);
     else
         AudioManager::playNote(curNote, channel,
-            game->waitingTimeForAQuarterNote / game->camera.speed * noteLength);
+            game->waitingTimeForAQuarterNote * noteLength / game->camera.speed);
 }
 
 void Tile::rightFirstNote(Game* game) {
@@ -137,8 +137,8 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
                     playNote(channel, 0, bassLength, notePos, game);
                 }
             }
-            else if (SDL_GetTicks() - curTick >= int(game->waitingTimeForAQuarterNote / game->camera.speed
-                                            * runNextTimeForChannel[channel])) {
+            else if (SDL_GetTicks() - curTick >= int(game->waitingTimeForAQuarterNote
+                                            * runNextTimeForChannel[channel] / game->camera.speed)) {
                 if (channel < channelCount && note[channel][0] == ""){
                     int noteLength = duration(channel, runNextTimeForChannel[channel], 1);
                     playNote(channel, 1, noteLength, notePos, game);

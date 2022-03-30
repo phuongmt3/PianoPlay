@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <cmath>
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 #include "SDL_ttf.h"
@@ -38,11 +39,11 @@ class Camera
 public:
     double y = 8, speed = 1.5;
     bool stop;
-    void update()
+    void update(double ratio)
     {
         if (stop)
             y = 0;
-        else y = 8;
+        else y = 8 * ratio;
     }
 };
 
@@ -191,7 +192,7 @@ public:
     bool isRunning; int fail;
     int curTileID, tileCount, lastSeenID, score, highScore;
     Camera camera;
-    const int waitingTimeForAQuarterNote = 90;
+    int waitingTimeForAQuarterNote = 90;
     SDL_Rect wrongRect;
     bool showWrongKey = 0, isAutoPlay = 0;
     vector<Tile> tileList;

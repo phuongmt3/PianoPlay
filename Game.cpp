@@ -108,7 +108,7 @@ void Game::init(const char* title){
         cout << "Init completed!\n";
         SDL_DisplayMode DM;
         SDL_GetCurrentDisplayMode(0, &DM);
-        ratio = DM.h / double(WINDOW_HEIGHT);
+        ratio = DM.h / double(WINDOW_HEIGHT); //ratio = 1;
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio,0);
         if (window){
@@ -126,7 +126,8 @@ void Game::init(const char* title){
         isRunning = 1;
     }
     else isRunning = 0;
-    camera.stop = 1; camera.speed *= ratio; fail = 0;
+    camera.stop = 1; waitingTimeForAQuarterNote = round(ratio * waitingTimeForAQuarterNote);
+    fail = 0;
     gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
     bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
@@ -212,7 +213,7 @@ void Game::handleInput(){
         int x, y; SDL_GetMouseState(&x, &y);
         if (inside(x, y, speedTxt.bloR))
             speedTxt.setColor(white), speedTxt.setText(-1, black);
-        else
+        else if (!showSpeedPopUp)
             speedTxt.setColor(blueTranparent), speedTxt.setText(-1, white);
 
         if (fail && inside(x, y, failPopUp.container[3].bloR))
@@ -251,7 +252,7 @@ void Game::handleInput(){
         if (showSpeedPopUp){
             for (int i = 0; i < 5; i++) {
                 if (inside(x, y, speedPopUp.container[i].bloR)) {
-                    camera.speed = 0.5 + 0.5 * i;
+                    camera.speed = (0.5 + 0.5 * i);
                     speedPopUp.container[i].setColor(white);
                     speedPopUp.container[i].setText(-1, black);
                 }
@@ -370,7 +371,7 @@ void Game::handleInput(){
 }
 
 void Game::update(){
-    camera.update();
+    camera.update(ratio);
     int goback = 0;
     if (curTileID < tileList.size())
         goback = tileList[curTileID].desR.y + tileList[curTileID].desR.h;
