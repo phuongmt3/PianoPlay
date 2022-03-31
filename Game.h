@@ -194,7 +194,7 @@ public:
     Camera camera;
     int waitingTimeForAQuarterNote = 90;
     SDL_Rect wrongRect;
-    bool showWrongKey = 0, isAutoPlay = 0;
+    bool showWrongKey = 0, isAutoPlay = 0, showMenu = 1;
     vector<Tile> tileList;
     int curSongId;
 

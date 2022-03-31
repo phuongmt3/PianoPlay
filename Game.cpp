@@ -11,6 +11,7 @@ PopUp failPopUp;
 Block speedTxt, autoPlay;
 PopUp speedPopUp;
 PopUp chooseSongPopUp;
+PopUp menu;
 bool showSpeedPopUp = 0, showChooseSong = 0;
 int cur1stSongInList = 1;
 
@@ -139,6 +140,16 @@ void Game::init(const char* title){
     failPopUp = PopUp(300, 300, 400, 300, ratio);
     speedPopUp = PopUp(50, 550, 150, 253, ratio);
     chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
+    menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ratio);
+
+    menu.setColor(transparent);
+    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 100, white, renderer);
+    menu.addBlock("title", 200, 130, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, white, renderer);
+    menu.addBlock("", 300, 300, 300, 100, blueTranparent, "Play", 0, 0, 80, white, renderer);
+    menu.addBlock("", 300, 400, 300, 100, blueTranparent, "Choose Song", 0, 0, 80, white, renderer);
+    menu.addBlock("", 300, 500, 300, 100, blueTranparent, "High Score", 0, 0, 80, white, renderer);
+    menu.addBlock("", 300, 600, 300, 100, blueTranparent, "Help", 0, 0, 80, white, renderer);
+    menu.addBlock("", 300, 700, 300, 100, blueTranparent, "Exit", 0, 0, 80, white, renderer);
 
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
@@ -164,14 +175,23 @@ void Game::init(const char* title){
     speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,white, renderer);
     speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,white, renderer);
 
-    chooseSongPopUp.setColor(darkGrey);
+    chooseSongPopUp.setColor(lightGrey);
     chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white, renderer);
     for (int i = 0; i < songCnt; i++)
-        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, lightGrey, song[i], 10, 0, 60, white, renderer);
+        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, darkGrey, song[i], 10, 0, 60, white, renderer);
     chooseSongPopUp.setLimit(100, -1);
 }
 
 void Game::render(){
+
+    if (showMenu) {
+        SDL_RenderClear(renderer);
+        SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
+        TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
+        menu.show(renderer);
+        SDL_RenderPresent(renderer);
+        return;
+    }
     if (fail == 1){
         if (showWrongKey){
             SDL_SetRenderDrawColor(renderer,255,13,13,255);
@@ -228,7 +248,7 @@ void Game::handleInput(){
                     chooseSongPopUp.container[i].setText(-1, black);
                 }
                 else {
-                    chooseSongPopUp.container[i].setColor(lightGrey);
+                    chooseSongPopUp.container[i].setColor(darkGrey);
                     chooseSongPopUp.container[i].setText(-1, white);
                 }
 
@@ -252,7 +272,7 @@ void Game::handleInput(){
         if (showSpeedPopUp){
             for (int i = 0; i < 5; i++) {
                 if (inside(x, y, speedPopUp.container[i].bloR)) {
-                    camera.speed = (0.5 + 0.5 * i);
+                    camera.speed = 0.5 + 0.5 * i;
                     speedPopUp.container[i].setColor(white);
                     speedPopUp.container[i].setText(-1, black);
                 }
@@ -321,7 +341,7 @@ void Game::handleInput(){
     }break;
     case SDL_KEYDOWN:
     {
-        if (!fail){
+        if (!fail && !showMenu){
             switch(event.key.keysym.sym)
             {
                 case SDLK_f:
@@ -356,11 +376,16 @@ void Game::handleInput(){
         else{
             switch(event.key.keysym.sym)
             {
-            case SDLK_SPACE:
-                fail = 0; break;
-            case SDLK_ESCAPE:
-                isRunning = 0; break;
-            default: break;
+                case SDLK_SPACE:
+                {
+                    if (fail)
+                        fail = 0; 
+                    else if (showMenu)
+                        showMenu = 0;
+                }break;
+                case SDLK_ESCAPE:
+                    isRunning = 0; break;
+                default: break;
             }
         }
     }break;
