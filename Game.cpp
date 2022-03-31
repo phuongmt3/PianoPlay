@@ -15,6 +15,10 @@ PopUp menu;
 bool showSpeedPopUp = 0, showChooseSong = 0;
 int cur1stSongInList = 1;
 
+enum sdlEvent {
+    mouseMotion, mouseUp, mouseDown, mouseWheel
+};
+
 int songCnt = 8;
 string song[] = {
         "TwinkleTwinkleLittleStar",
@@ -104,6 +108,141 @@ bool inside(const int& x, const int& y, const SDL_Rect& rec)
     return 1;
 }
 
+void chooseSpeed(const int& x, const int& y, sdlEvent event, Camera& camera) {
+    if (event == mouseMotion) {
+        if (inside(x, y, speedTxt.bloR))
+            speedTxt.setColor(white), speedTxt.setText(-1, black);
+        else if (!showSpeedPopUp)
+            speedTxt.setColor(blueTranparent), speedTxt.setText(-1, white);
+    }
+    else if (event == mouseDown) {
+        if (showSpeedPopUp) {
+            for (int i = 0; i < 5; i++) {
+                if (inside(x, y, speedPopUp.container[i].bloR)) {
+                    camera.speed = 0.5 + 0.5 * i;
+                    speedPopUp.container[i].setColor(white);
+                    speedPopUp.container[i].setText(-1, black);
+                }
+                else if (inside(x, y, speedPopUp.desR))
+                    speedPopUp.container[i].setColor(lightGrey),
+                    speedPopUp.container[i].setText(-1, white);
+            }
+        }
+    }
+    else if (event == mouseUp) {
+        if (inside(x, y, speedTxt.bloR))
+            showSpeedPopUp = 1;
+        else
+            showSpeedPopUp = 0;
+    }
+}
+
+void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SDL_Event& e) {
+    if (event == mouseMotion) {
+        if (showChooseSong) {
+            for (int i = 1; i <= songCnt; i++) {
+                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
+                    chooseSongPopUp.container[i].setColor(white);
+                    chooseSongPopUp.container[i].setText(-1, black);
+                }
+                else {
+                    chooseSongPopUp.container[i].setColor(darkGrey);
+                    chooseSongPopUp.container[i].setText(-1, white);
+                }
+            }
+        }
+    }
+    else if (event == mouseDown) {
+        if (showChooseSong) {
+            game->showMenu = 0;
+            for (int i = 1; i <= songCnt; i++)
+                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
+                    game->tileList.clear();
+                    addTile(i - 1, game);
+                    game->curTileID = 0; game->lastSeenID = 0;
+                }
+        }
+    }
+    else if (event == mouseWheel) {
+        if (inside(x, y, chooseSongPopUp.desR)) {
+            if (e.wheel.y < 0 && cur1stSongInList + 4 < songCnt) {
+                cur1stSongInList++;
+                int step = chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - chooseSongPopUp.limitMoveUp();
+                for (int i = 1; i <= songCnt; i++)
+                    chooseSongPopUp.container[i].changePos(0, -step);
+            }
+            else if (e.wheel.y > 0 && cur1stSongInList > 1) {
+                cur1stSongInList--;
+                int step = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
+                for (int i = 1; i <= songCnt; i++)
+                    chooseSongPopUp.container[i].changePos(0, step);
+            }
+        }
+    }
+}
+
+void autoPlayHandle(const int& x, const int& y, sdlEvent event, Game* game) {
+    if (event == mouseMotion) {
+        if (!game->isAutoPlay) {
+            if (inside(x, y, autoPlay.bloR)) {
+                autoPlay.setColor(white);
+                autoPlay.setText(0, black);
+            }
+            else {
+                autoPlay.setColor(blueTranparent);
+                autoPlay.setText(0, white);
+            }
+        }
+    }
+    else if (event == mouseUp) {
+        if (inside(x, y, autoPlay.bloR)) {
+            if (!game->isAutoPlay) {
+                game->isAutoPlay = 1;
+                autoPlay.setColor(black);
+                autoPlay.setText(0, red);
+            }
+            else {
+                game->isAutoPlay = 0; game->camera.stop = 1;
+                autoPlay.setColor(white);
+                autoPlay.setText(0, black);
+            }
+        }
+    }
+}
+
+void chooseSongButton(const int& x, const int& y, sdlEvent event, int fail) {
+    if (event == mouseMotion) {
+        if (fail && inside(x, y, failPopUp.container[3].bloR))
+            failPopUp.container[3].setColor(white), failPopUp.container[3].setText(-1, black);
+        else
+            failPopUp.container[3].setColor(transparent), failPopUp.container[3].setText(-1, white);
+    }
+    else if (event == mouseUp) {
+        if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
+            showChooseSong = 1;
+        else {
+            showChooseSong = 0; cur1stSongInList = 1;
+            int comeback = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(1);
+            if (comeback > 0)
+                for (int i = 1; i <= songCnt; i++)
+                    chooseSongPopUp.container[i].changePos(0, comeback);
+        }
+    }
+}
+
+void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
+    if (event == mouseUp) {
+        if (inside(x, y, menu.container[2].bloR))
+            game->showMenu = 0;
+        else if (inside(x, y, menu.container[3].bloR))
+            showChooseSong = 1;
+        else if (inside(x, y, menu.container[4].bloR));
+        else if (inside(x, y, menu.container[5].bloR));
+        else if (inside(x, y, menu.container[6].bloR))
+            game->isRunning = 0;
+    }
+}
+
 void Game::init(const char* title){
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0){
         cout << "Init completed!\n";
@@ -189,6 +328,8 @@ void Game::render(){
         SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
         TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
         menu.show(renderer);
+        if (showChooseSong)
+            chooseSongPopUp.show(renderer);
         SDL_RenderPresent(renderer);
         return;
     }
@@ -231,113 +372,36 @@ void Game::handleInput(){
     case SDL_MOUSEMOTION:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (inside(x, y, speedTxt.bloR))
-            speedTxt.setColor(white), speedTxt.setText(-1, black);
-        else if (!showSpeedPopUp)
-            speedTxt.setColor(blueTranparent), speedTxt.setText(-1, white);
-
-        if (fail && inside(x, y, failPopUp.container[3].bloR))
-            failPopUp.container[3].setColor(white), failPopUp.container[3].setText(-1,black);
-        else
-            failPopUp.container[3].setColor(transparent), failPopUp.container[3].setText(-1, white);
-
-        if (showChooseSong) {
-            for (int i = 1; i <= songCnt; i++) {
-                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
-                    chooseSongPopUp.container[i].setColor(white);
-                    chooseSongPopUp.container[i].setText(-1, black);
-                }
-                else {
-                    chooseSongPopUp.container[i].setColor(darkGrey);
-                    chooseSongPopUp.container[i].setText(-1, white);
-                }
-
-            }
-        }
-
-        if (!isAutoPlay) {
-            if (inside(x, y, autoPlay.bloR)) {
-                autoPlay.setColor(white);
-                autoPlay.setText(0, black);
-            }
-            else {
-                autoPlay.setColor(blueTranparent);
-                autoPlay.setText(0, white);
-            }
-        }
+        chooseSpeed(x, y, mouseMotion, camera);
+        chooseSongButton(x, y, mouseMotion, fail);
+        chooseSong(x, y, mouseMotion, this, event);
+        autoPlayHandle(x, y, mouseMotion, this);
     }break;
     case SDL_MOUSEBUTTONDOWN:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (showSpeedPopUp){
-            for (int i = 0; i < 5; i++) {
-                if (inside(x, y, speedPopUp.container[i].bloR)) {
-                    camera.speed = 0.5 + 0.5 * i;
-                    speedPopUp.container[i].setColor(white);
-                    speedPopUp.container[i].setText(-1, black);
-                }
-                else if (inside(x, y, speedPopUp.desR))
-                    speedPopUp.container[i].setColor(lightGrey),
-                    speedPopUp.container[i].setText(-1, white);
-            }
+        if (showMenu) {
+            chooseSong(x, y, mouseDown, this, event);
+            break;
         }
-        if (showChooseSong) {
-            for (int i = 1; i <= songCnt; i++)
-                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
-                    tileList.clear();
-                    addTile(i - 1, this);
-                    curTileID = 0; lastSeenID = 0;
-                }
-        }
+        chooseSpeed(x, y, mouseDown, camera);
+        chooseSong(x, y, mouseDown, this, event);
     }break;
     case SDL_MOUSEBUTTONUP:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (inside(x, y, speedTxt.bloR))
-            showSpeedPopUp = 1;
-        else
-            showSpeedPopUp = 0;
-
-        if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
-            showChooseSong = 1;
-        else {
-            showChooseSong = 0; cur1stSongInList = 1;
-            int comeback = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(1);
-            if (comeback > 0)
-                for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, comeback);
+        if (showMenu) {
+            menuHandle(x, y, mouseUp, this);
+            break;
         }
-
-        if (inside(x, y, autoPlay.bloR)) {
-            if (!isAutoPlay) {
-                isAutoPlay = 1;
-                autoPlay.setColor(black);
-                autoPlay.setText(0, red);
-            }
-            else {
-                isAutoPlay = 0; camera.stop = 1;
-                autoPlay.setColor(white);
-                autoPlay.setText(0, black);
-            }
-        }
+        chooseSpeed(x, y, mouseUp, camera);
+        chooseSongButton(x, y, mouseUp, fail);
+        autoPlayHandle(x, y, mouseUp, this);
     }break;
     case SDL_MOUSEWHEEL:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (inside(x, y, chooseSongPopUp.desR)) {
-            if (event.wheel.y < 0 && cur1stSongInList + 4 < songCnt) {
-                cur1stSongInList++;
-                int step = chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - chooseSongPopUp.limitMoveUp();
-                for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, -step);
-            }
-            else if (event.wheel.y > 0 && cur1stSongInList > 1) {
-                cur1stSongInList--;
-                int step = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
-                for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, step);
-            }
-        }
+        chooseSong(x, y, mouseWheel, this, event);
     }break;
     case SDL_KEYDOWN:
     {
@@ -369,7 +433,7 @@ void Game::handleInput(){
                 }
                 break;
                 case SDLK_ESCAPE:
-                    isRunning = 0; break;
+                    showMenu = 1; break;
                 default: break;
             }
         }
@@ -384,7 +448,7 @@ void Game::handleInput(){
                         showMenu = 0;
                 }break;
                 case SDLK_ESCAPE:
-                    isRunning = 0; break;
+                    showMenu = 1; break;
                 default: break;
             }
         }

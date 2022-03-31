@@ -852,7 +852,7 @@ Gb5,A3+B3+D4+Gb4
 -E5 
 Gb5-B5 
 ,
-A5,A3+Cb3+E4+G4
+A5,A3+C4+E4+G4
 ,
 Gb5,A3+B3+D4+Gb4
 A5 
