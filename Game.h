@@ -170,7 +170,7 @@ public:
     void setNote(string _note, int channel, int consecutiveNotes, int isBass);
     int duration(int channel, int curpos, bool isNote);
     void playNote(int channel, bool isNote, int noteLength, int notePos, const Game* game);
-    void rightFirstNote(Game* game);
+    void rightFirstNote(Game* game, PopUp& highScoreTxt);
     void show(SDL_Renderer* renderer);
     void handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
                      PopUp& failPopUp, Game* game);

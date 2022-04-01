@@ -54,10 +54,6 @@ void Fail(int& fail, PopUp& highScoreTxt, PopUp& failPopUp, Game* game) {
     AudioManager::playNote("A0", 0, 0);
     fail = 1;
     game->camera.stop = 1; game->lastSeenID = game->curTileID;
-    if (game->score > game->highScore) {
-        game->highScore = game->score;
-        highScoreTxt.update(game);
-    }
     failPopUp.update(game);
     game->score = 0;
 }
@@ -74,7 +70,7 @@ void Tile::playNote(int channel, bool isNote, int noteLength, int notePos, const
             game->waitingTimeForAQuarterNote * noteLength / game->camera.speed);
 }
 
-void Tile::rightFirstNote(Game* game) {
+void Tile::rightFirstNote(Game* game, PopUp& highScoreTxt) {
     cout << SDL_GetTicks() - curTick << '\n';
     curTick = SDL_GetTicks();
     touched = 1; game->curTileID++;
@@ -86,6 +82,10 @@ void Tile::rightFirstNote(Game* game) {
         if (bass[channel][0] != "")
             playNote(channel + channelCount, 0, bassLength, 0, game);
     }
+    if (game->score > game->highScore) {
+        game->highScore = game->score;
+        highScoreTxt.update(game);
+    }
 }
 
 void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
@@ -94,12 +94,12 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
     cout << game->curTileID << '\n';
     if (game->isAutoPlay) {
         if (desR.y > 300 && !touched)
-            rightFirstNote(game);
+            rightFirstNote(game, highScoreTxt);
         return;
     }
     if (posInput == pos && desR.y + h >= 0){
         game->score++;
-        rightFirstNote(game);
+        rightFirstNote(game, highScoreTxt);
     }
     else {
         Fail(fail, highScoreTxt, failPopUp, game); cout << "You fail because of wrong key\n";

@@ -13,7 +13,7 @@ PopUp speedPopUp;
 PopUp chooseSongPopUp;
 PopUp menu, manual;
 bool showSpeedPopUp = 0, showChooseSong = 0;//cho all bien nay thanh 1 phan of popup
-int cur1stSongInList = 1;
+int cur1stSongInList = 1;//chuyen thanh static trong Game
 bool showManual = 0;
 
 enum sdlEvent {
