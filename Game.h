@@ -80,7 +80,7 @@ private:
 public:
     Text content;
     SDL_Rect bloR;
-    bool isShown;
+    bool isShown = 0;
 
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,

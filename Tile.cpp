@@ -50,7 +50,7 @@ int Tile::duration(int channel, int curpos, bool isNote) {
     return cnt;
 }
 
-void Fail(int& fail, PopUp& highScoreTxt, PopUp& failPopUp, Game* game) {
+void Fail(int& fail, PopUp& failPopUp, Game* game) {
     AudioManager::playNote("A0", 0, 0);
     fail = 1;
     game->camera.stop = 1; game->lastSeenID = game->curTileID;
@@ -104,7 +104,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
         rightFirstNote(game, highScoreTxt);
     }
     else {
-        Fail(fail, highScoreTxt, failPopUp, game); cout << "You fail because of wrong key\n";
+        Fail(fail, failPopUp, game); cout << "You fail because of wrong key\n";
         game->showWrongKey = 1;
         game->wrongRect = {int(posInput * w + WINDOW_WIDTH * ratio/2 - GAME_WIDTH * ratio/2), desR.y, w, h};
     }
@@ -120,7 +120,7 @@ void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScore
     }
     desR.y += int(game->camera.y * game->camera.speed);
     if (desR.y > GAME_HEIGHT * ratio + 10 && !touched){
-        Fail(fail, highScoreTxt, failPopUp, game); cout << "You fail because of untouched\n";
+        Fail(fail, failPopUp, game); cout << "You fail because of untouched\n";
         desR.y -= (gobackLength + int(game->camera.y * game->camera.speed)) * ratio;
         scoreTxt.update(game);
     }

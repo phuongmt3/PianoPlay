@@ -150,7 +150,6 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
             for (int i = 1; i <= songCnt; i++)
                 if (game->chooseSongPopUp.visibleBlock(i) && inside(x, y, game->chooseSongPopUp.container[i].bloR)) {
                     game->menu.isShown = 0;
-                    game->tileList.clear();
                     addTile(i - 1, game);
                     game->curTileID = 0; game->lastSeenID = 0;
                 }
@@ -172,6 +171,17 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
                 for (int i = 1; i <= songCnt; i++)
                     game->chooseSongPopUp.container[i].changePos(0, step);
             }
+        }
+    }
+    else if (event == mouseUp) {
+        if (game->fail && !game->chooseSongPopUp.isShown && inside(x, y, game->failPopUp.container[3].bloR))
+            game->chooseSongPopUp.isShown = 1;
+        else if (!game->menu.isShown || !inside(x, y, game->chooseSongPopUp.desR)) {
+            game->chooseSongPopUp.isShown = 0; cur1stSongInList = 1;
+            int comeback = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(1);
+            if (comeback > 0)
+                for (int i = 1; i <= songCnt; i++)
+                    game->chooseSongPopUp.container[i].changePos(0, comeback);
         }
     }
 }
@@ -212,17 +222,6 @@ void chooseSongButton(const int& x, const int& y, sdlEvent event, Game* game) {
         else
             game->failPopUp.container[3].setColor(transparent), game->failPopUp.container[3].setText(-1, white);
     }
-    else if (event == mouseUp) {
-        if (game->fail && !game->chooseSongPopUp.isShown && inside(x, y, game->failPopUp.container[3].bloR))
-            game->chooseSongPopUp.isShown = 1;
-        else {
-            game->chooseSongPopUp.isShown = 0; cur1stSongInList = 1;
-            int comeback = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(1);
-            if (comeback > 0)
-                for (int i = 1; i <= songCnt; i++)
-                    game->chooseSongPopUp.container[i].changePos(0, comeback);
-        }
-    }
 }
 
 void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
@@ -257,7 +256,7 @@ void highScorePopUpHandle(const int& x, const int& y, sdlEvent event, Game* game
             if (!inside(x, y, game->highScorePopUp.desR))
                 game->highScorePopUp.isShown = 0;
     }
-    else if (event == mouseUp)
+    else if (game->highScorePopUp.isShown && event == mouseUp)
         if (inside(x, y, game->highScorePopUp.container[2].bloR)) {
             game->highScore = 0;
             game->highScoreTxt.update(game);
@@ -367,7 +366,6 @@ void Game::init(const char* title){
 }
 
 void Game::render(){
-
     if (menu.isShown) {
         SDL_RenderClear(renderer);
         SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
@@ -460,10 +458,11 @@ void Game::handleInput(){
         if (menu.isShown) {
             menuHandle(x, y, mouseUp, this);
             highScorePopUpHandle(x, y, mouseUp, this);
+            chooseSong(x, y, mouseUp, this, event);
             break;
         }
         chooseSpeed(x, y, mouseUp, this);
-        chooseSongButton(x, y, mouseUp, this);
+        chooseSong(x, y, mouseUp, this, event);
         autoPlayHandle(x, y, mouseUp, this);
     }break;
     case SDL_MOUSEWHEEL:
