@@ -80,6 +80,7 @@ private:
 public:
     Text content;
     SDL_Rect bloR;
+    bool isShown;
 
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
@@ -87,7 +88,7 @@ public:
     void setText(int fontType, Color colorType);
     void setColor(Color newColor);
     void show();
-    void update(const Game* game);
+    void update(Game* game);
     void changePos(int x, int y);
     string getName() {
         return name;
@@ -100,9 +101,11 @@ private:
     Color colorType;
     double ratio;
     int limitMoveUpValue, limitMoveDownValue;
+
 public:
     vector<Block> container;
     SDL_Rect desR;
+    bool isShown;
 
     PopUp(){}
     PopUp(int x, int y, int w, int h, double _ratio);
@@ -110,7 +113,7 @@ public:
           const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
     void setLimit(int limitUp, int limitDown);
     void setColor(Color newColor);
-    void update(const Game* game);
+    void update(Game* game);
     void show(SDL_Renderer* renderer);
     bool visibleBlock(int i);
     int takeY_BasePopUp(int i);
@@ -189,14 +192,16 @@ private:
 public:
     double ratio;
     SDL_Renderer* renderer;
-    bool isRunning; int fail;
+    bool isRunning; int fail; bool showWrongKey = 0;//necessary??
     int curTileID, tileCount, lastSeenID, score, highScore;
     Camera camera;
     int waitingTimeForAQuarterNote = 90;
     SDL_Rect wrongRect;
-    bool showWrongKey = 0, isAutoPlay = 0, showMenu = 1;
     vector<Tile> tileList;
     int curSongId;
+    PopUp scoreTxt, highScoreTxt, failPopUp;
+    Block speedTxt, autoPlay;
+    PopUp speedPopUp, chooseSongPopUp, menu, manual, highScorePopUp;
 
     void init(const char* title);
     void render();

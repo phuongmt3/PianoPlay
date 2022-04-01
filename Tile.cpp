@@ -85,6 +85,8 @@ void Tile::rightFirstNote(Game* game, PopUp& highScoreTxt) {
     if (game->score > game->highScore) {
         game->highScore = game->score;
         highScoreTxt.update(game);
+        ofstream fout("PianoPlay/pianoHub/highscore.txt");
+        fout << game->highScore;
     }
 }
 
@@ -92,7 +94,7 @@ void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScor
                                     PopUp& failPopUp, Game* game)
 {
     cout << game->curTileID << '\n';
-    if (game->isAutoPlay) {
+    if (game->autoPlay.isShown) {
         if (desR.y > 300 && !touched)
             rightFirstNote(game, highScoreTxt);
         return;

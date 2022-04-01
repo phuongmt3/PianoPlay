@@ -4,6 +4,7 @@ PopUp::PopUp(int x, int y, int w, int h, double _ratio){
     ratio = _ratio;
     desR = {int(x * ratio), int(y * ratio), int(w * ratio), int(h * ratio) };
     limitMoveUpValue = 0; limitMoveDownValue = h * ratio;
+    isShown = 0;
 }
 
 void PopUp::setLimit(int limitUp, int limitDown) {
@@ -18,7 +19,7 @@ void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh
     container.push_back(Block(_name,(blox * ratio + desR.x)/ratio + 1, (bloy * ratio + desR.y)/ratio + 1,blow,bloh,blockColor,
                             _text,x,y,fontSize,textColor,Orenderer,ratio));
 }
-void PopUp::update(const Game* game){
+void PopUp::update(Game* game){
     for (auto& i: container)
         i.update(game);
 }

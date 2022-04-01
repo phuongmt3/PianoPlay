@@ -28,16 +28,16 @@ void Block::setColor(Color newColor) {
     colorType = newColor;
 }
 
-void Block::update(const Game* game){
-    if (name == "score"){
+void Block::update(Game* game){
+    if (name == "score")
         content.updateText("Your score: " + to_string(game->score));
-    }
     else if (name == "scoreOnlyNum"){
         string test = to_string(game->score);
         content.updateText(test);
     }
     else if (name == "failTitle"){
         if (game->score == game->highScore && game->score > 0) {
+            game->highScorePopUp.container[1].content.updateText("Best score: " + to_string(game->highScore));
             content.updateText("High Score!!");
             setColor(blue);
         }

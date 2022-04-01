@@ -5,16 +5,7 @@ Mix_Chunk* AudioManager::winnerChunk;
 
 Uint32 Tile::curTick;
 
-PopUp scoreTxt;
-PopUp highScoreTxt;
-PopUp failPopUp;
-Block speedTxt, autoPlay;
-PopUp speedPopUp;
-PopUp chooseSongPopUp;
-PopUp menu, manual;
-bool showSpeedPopUp = 0, showChooseSong = 0;//cho all bien nay thanh 1 phan of popup
 int cur1stSongInList = 1;//chuyen thanh static trong Game
-bool showManual = 0;
 
 enum sdlEvent {
     mouseMotion, mouseUp, mouseDown, mouseWheel
@@ -110,76 +101,76 @@ bool inside(const int& x, const int& y, const SDL_Rect& rec)
     return 1;
 }
 
-void chooseSpeed(const int& x, const int& y, sdlEvent event, Camera& camera) {
+void chooseSpeed(const int& x, const int& y, sdlEvent event, Game* game) {
     if (event == mouseMotion) {
-        if (inside(x, y, speedTxt.bloR))
-            speedTxt.setColor(white), speedTxt.setText(-1, black);
-        else if (!showSpeedPopUp)
-            speedTxt.setColor(blueTranparent), speedTxt.setText(-1, white);
+        if (inside(x, y, game->speedTxt.bloR))
+            game->speedTxt.setColor(white), game->speedTxt.setText(-1, black);
+        else if (!game->speedPopUp.isShown)
+            game->speedTxt.setColor(blueTranparent), game->speedTxt.setText(-1, white);
     }
     else if (event == mouseDown) {
-        if (showSpeedPopUp) {
+        if (game->speedPopUp.isShown) {
             for (int i = 0; i < 5; i++) {
-                if (inside(x, y, speedPopUp.container[i].bloR)) {
-                    camera.speed = 0.5 + 0.5 * i;
-                    speedPopUp.container[i].setColor(white);
-                    speedPopUp.container[i].setText(-1, black);
+                if (inside(x, y, game->speedPopUp.container[i].bloR)) {
+                    game->camera.speed = 0.5 + 0.5 * i;
+                    game->speedPopUp.container[i].setColor(white);
+                    game->speedPopUp.container[i].setText(-1, black);
                 }
-                else if (inside(x, y, speedPopUp.desR))
-                    speedPopUp.container[i].setColor(lightGrey),
-                    speedPopUp.container[i].setText(-1, white);
+                else if (inside(x, y, game->speedPopUp.desR))
+                    game->speedPopUp.container[i].setColor(lightGrey),
+                    game->speedPopUp.container[i].setText(-1, white);
             }
         }
     }
     else if (event == mouseUp) {
-        if (inside(x, y, speedTxt.bloR))
-            showSpeedPopUp = 1;
+        if (inside(x, y, game->speedTxt.bloR))
+            game->speedPopUp.isShown = 1;
         else
-            showSpeedPopUp = 0;
+            game->speedPopUp.isShown = 0;
     }
 }
 
 void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SDL_Event& e) {
     if (event == mouseMotion) {
-        if (showChooseSong) {
+        if (game->chooseSongPopUp.isShown) {
             for (int i = 1; i <= songCnt; i++) {
-                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
-                    chooseSongPopUp.container[i].setColor(white);
-                    chooseSongPopUp.container[i].setText(-1, black);
+                if (game->chooseSongPopUp.visibleBlock(i) && inside(x, y, game->chooseSongPopUp.container[i].bloR)) {
+                    game->chooseSongPopUp.container[i].setColor(white);
+                    game->chooseSongPopUp.container[i].setText(-1, black);
                 }
                 else {
-                    chooseSongPopUp.container[i].setColor(darkGrey);
-                    chooseSongPopUp.container[i].setText(-1, white);
+                    game->chooseSongPopUp.container[i].setColor(darkGrey);
+                    game->chooseSongPopUp.container[i].setText(-1, white);
                 }
             }
         }
     }
     else if (event == mouseDown) {
-        if (showChooseSong) {
+        if (game->chooseSongPopUp.isShown) {
             for (int i = 1; i <= songCnt; i++)
-                if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
-                    game->showMenu = 0;
+                if (game->chooseSongPopUp.visibleBlock(i) && inside(x, y, game->chooseSongPopUp.container[i].bloR)) {
+                    game->menu.isShown = 0;
                     game->tileList.clear();
                     addTile(i - 1, game);
                     game->curTileID = 0; game->lastSeenID = 0;
                 }
-            if (!inside(x, y, chooseSongPopUp.desR))
-                showChooseSong = 0;
+            if (!inside(x, y, game->chooseSongPopUp.desR))
+                game->chooseSongPopUp.isShown = 0;
         }
     }
     else if (event == mouseWheel) {
-        if (inside(x, y, chooseSongPopUp.desR)) {
+        if (inside(x, y, game->chooseSongPopUp.desR)) {
             if (e.wheel.y < 0 && cur1stSongInList + 4 < songCnt) {
                 cur1stSongInList++;
-                int step = chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - chooseSongPopUp.limitMoveUp();
+                int step = game->chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - game->chooseSongPopUp.limitMoveUp();
                 for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, -step);
+                    game->chooseSongPopUp.container[i].changePos(0, -step);
             }
             else if (e.wheel.y > 0 && cur1stSongInList > 1) {
                 cur1stSongInList--;
-                int step = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
+                int step = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
                 for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, step);
+                    game->chooseSongPopUp.container[i].changePos(0, step);
             }
         }
     }
@@ -187,77 +178,93 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
 
 void autoPlayHandle(const int& x, const int& y, sdlEvent event, Game* game) {
     if (event == mouseMotion) {
-        if (!game->isAutoPlay) {
-            if (inside(x, y, autoPlay.bloR)) {
-                autoPlay.setColor(white);
-                autoPlay.setText(0, black);
+        if (!game->autoPlay.isShown) {
+            if (inside(x, y, game->autoPlay.bloR)) {
+                game->autoPlay.setColor(white);
+                game->autoPlay.setText(0, black);
             }
             else {
-                autoPlay.setColor(blueTranparent);
-                autoPlay.setText(0, white);
+                game->autoPlay.setColor(blueTranparent);
+                game->autoPlay.setText(0, white);
             }
         }
     }
     else if (event == mouseUp) {
-        if (inside(x, y, autoPlay.bloR)) {
-            if (!game->isAutoPlay) {
-                game->isAutoPlay = 1;
-                autoPlay.setColor(black);
-                autoPlay.setText(0, red);
+        if (inside(x, y, game->autoPlay.bloR)) {
+            if (!game->autoPlay.isShown) {
+                game->autoPlay.isShown = 1;
+                game->autoPlay.setColor(black);
+                game->autoPlay.setText(0, red);
             }
             else {
-                game->isAutoPlay = 0; game->camera.stop = 1;
-                autoPlay.setColor(white);
-                autoPlay.setText(0, black);
+                game->autoPlay.isShown = 0; game->camera.stop = 1;
+                game->autoPlay.setColor(white);
+                game->autoPlay.setText(0, black);
             }
         }
     }
 }
 
-void chooseSongButton(const int& x, const int& y, sdlEvent event, int fail) {
+void chooseSongButton(const int& x, const int& y, sdlEvent event, Game* game) {
     if (event == mouseMotion) {
-        if (fail && inside(x, y, failPopUp.container[3].bloR))
-            failPopUp.container[3].setColor(white), failPopUp.container[3].setText(-1, black);
+        if (game->fail && inside(x, y, game->failPopUp.container[3].bloR))
+            game->failPopUp.container[3].setColor(white), game->failPopUp.container[3].setText(-1, black);
         else
-            failPopUp.container[3].setColor(transparent), failPopUp.container[3].setText(-1, white);
+            game->failPopUp.container[3].setColor(transparent), game->failPopUp.container[3].setText(-1, white);
     }
     else if (event == mouseUp) {
-        if (fail && !showChooseSong && inside(x, y, failPopUp.container[3].bloR))
-            showChooseSong = 1;
+        if (game->fail && !game->chooseSongPopUp.isShown && inside(x, y, game->failPopUp.container[3].bloR))
+            game->chooseSongPopUp.isShown = 1;
         else {
-            showChooseSong = 0; cur1stSongInList = 1;
-            int comeback = chooseSongPopUp.limitMoveUp() - chooseSongPopUp.takeY_BasePopUp(1);
+            game->chooseSongPopUp.isShown = 0; cur1stSongInList = 1;
+            int comeback = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(1);
             if (comeback > 0)
                 for (int i = 1; i <= songCnt; i++)
-                    chooseSongPopUp.container[i].changePos(0, comeback);
+                    game->chooseSongPopUp.container[i].changePos(0, comeback);
         }
     }
 }
 
 void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
-    if (event == mouseUp && !showManual) {
-        if (inside(x, y, menu.container[2].bloR)) {
-            game->showMenu = 0;
+    if (event == mouseUp && !game->manual.isShown && !game->highScorePopUp.isShown) {
+        if (inside(x, y, game->menu.container[2].bloR)) {
+            game->menu.isShown = 0;
             int nextID = rand() % songCnt;
             nextID == game->curSongId ? addTile((nextID + 1) % songCnt, game) : addTile(nextID, game);
         }
-        else if (inside(x, y, menu.container[3].bloR))
-            showChooseSong = 1;
-        else if (inside(x, y, menu.container[4].bloR));
-        else if (inside(x, y, menu.container[5].bloR)) {
-            showManual = 1;
-        }
-        else if (inside(x, y, menu.container[6].bloR))
+        else if (inside(x, y, game->menu.container[3].bloR))
+            game->chooseSongPopUp.isShown = 1;
+        else if (inside(x, y, game->menu.container[4].bloR))
+            game->highScorePopUp.isShown = 1;
+        else if (inside(x, y, game->menu.container[5].bloR))
+            game->manual.isShown = 1;
+        else if (inside(x, y, game->menu.container[6].bloR))
             game->isRunning = 0;
     }
 }
 
-void manualHandle(const int& x, const int& y, sdlEvent event) {
+void manualHandle(const int& x, const int& y, sdlEvent event, Game* game) {
     if (event == mouseDown) {
-        if (showManual)
-            if (!inside(x, y, manual.desR))
-                showManual = 0;
+        if (game->manual.isShown)
+            if (!inside(x, y, game->manual.desR))
+                game->manual.isShown = 0;
     }
+}
+
+void highScorePopUpHandle(const int& x, const int& y, sdlEvent event, Game* game) {
+    if (event == mouseDown) {
+        if (game->highScorePopUp.isShown)
+            if (!inside(x, y, game->highScorePopUp.desR))
+                game->highScorePopUp.isShown = 0;
+    }
+    else if (event == mouseUp)
+        if (inside(x, y, game->highScorePopUp.container[2].bloR)) {
+            game->highScore = 0;
+            game->highScoreTxt.update(game);
+            game->highScorePopUp.container[1].content.updateText("Best score: 0");
+            ofstream fout("PianoPlay/pianoHub/highscore.txt");
+            fout << game->highScore;
+        }
 }
 
 void Game::init(const char* title){
@@ -283,13 +290,6 @@ void Game::init(const char* title){
         isRunning = 1;
     }
     else isRunning = 0;
-    camera.stop = 1; waitingTimeForAQuarterNote = round(ratio * waitingTimeForAQuarterNote);
-    fail = 0;
-    gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
-    bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
-    AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
-    addSound();
-    addTile(rand() % songCnt, this);
 
     scoreTxt = PopUp(20, 20, 200, 250, ratio);
     highScoreTxt = PopUp(770, 20, 200, 250, ratio);
@@ -298,6 +298,17 @@ void Game::init(const char* title){
     chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
     menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ratio);
     manual = PopUp(150, 200, 700, 600, ratio);
+    highScorePopUp = PopUp(300, 200, 400, 500, ratio);
+
+    ifstream fin("PianoPlay/pianoHub/highscore.txt");
+    fin >> highScore;
+    camera.stop = 1; waitingTimeForAQuarterNote = round(ratio * waitingTimeForAQuarterNote);
+    fail = 0; menu.isShown = 1;
+    gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
+    bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
+    AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
+    addSound();
+    addTile(rand() % songCnt, this);
 
     menu.setColor(transparent);
     menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 100, white, renderer);
@@ -318,13 +329,19 @@ void Game::init(const char* title){
     manual.addBlock("", 0, 350, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but you won't get score", 0, 0, 60, white, renderer);
     manual.addBlock("", 0, 400, 700, 50, transparent, "The last thing, press Esc to back to menu.", 0, 0, 60, white, renderer);
 
+    highScorePopUp.setColor(lightGrey);
+    string bestScoreLine = "Best Score: " + to_string(highScore);
+    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 0, 0, 100, white, renderer);
+    highScorePopUp.addBlock("", 0, 100, 400, 100, transparent, bestScoreLine, 10, 0, 60, white, renderer);
+    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 20, 0, 80, white, renderer);
+
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
     scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white,renderer);
 
     highScoreTxt.setColor(transparent);
     highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,white, renderer);
-    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white, renderer);
+    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,to_string(highScore), 20, 0, 150, white, renderer);
 
     failPopUp.setColor(lightGrey);
     failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,white, renderer);
@@ -351,15 +368,17 @@ void Game::init(const char* title){
 
 void Game::render(){
 
-    if (showMenu) {
+    if (menu.isShown) {
         SDL_RenderClear(renderer);
         SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
         TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
         menu.show(renderer);
-        if (showChooseSong)
+        if (chooseSongPopUp.isShown)
             chooseSongPopUp.show(renderer);
-        if (showManual)
+        if (manual.isShown)
             manual.show(renderer);
+        if (highScorePopUp.isShown)
+            highScorePopUp.show(renderer);
         SDL_RenderPresent(renderer);
         return;
     }
@@ -383,11 +402,11 @@ void Game::render(){
     showTile(this);
     scoreTxt.show(renderer); highScoreTxt.show(renderer); 
     speedTxt.show(); autoPlay.show();
-    if (showSpeedPopUp)
+    if (speedPopUp.isShown)
         speedPopUp.show(renderer);
     if (fail) 
         failPopUp.show(renderer);
-    if (showChooseSong) 
+    if (chooseSongPopUp.isShown) 
         chooseSongPopUp.show(renderer);
     SDL_RenderPresent(renderer);
 }
@@ -395,7 +414,7 @@ void Game::render(){
 void Game::exit() {
     curTileID = lastSeenID = 0;
     score = 0;
-    showChooseSong = showSpeedPopUp = fail = isAutoPlay = 0;
+    chooseSongPopUp.isShown = speedPopUp.isShown = fail = autoPlay.isShown = 0;
     camera.stop = 1; camera.speed = 1.5;
     for (int i = 0; i < 5; i++) {
         if (i == 2) {
@@ -418,31 +437,33 @@ void Game::handleInput(){
     case SDL_MOUSEMOTION:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        chooseSpeed(x, y, mouseMotion, camera);
-        chooseSongButton(x, y, mouseMotion, fail);
+        chooseSpeed(x, y, mouseMotion, this);
+        chooseSongButton(x, y, mouseMotion, this);
         chooseSong(x, y, mouseMotion, this, event);
         autoPlayHandle(x, y, mouseMotion, this);
     }break;
     case SDL_MOUSEBUTTONDOWN:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (showMenu) {
+        if (menu.isShown) {
             chooseSong(x, y, mouseDown, this, event);
-            manualHandle(x, y, mouseDown);
+            manualHandle(x, y, mouseDown, this);
+            highScorePopUpHandle(x, y, mouseDown, this);
             break;
         }
-        chooseSpeed(x, y, mouseDown, camera);
+        chooseSpeed(x, y, mouseDown, this);
         chooseSong(x, y, mouseDown, this, event);
     }break;
     case SDL_MOUSEBUTTONUP:
     {
         int x, y; SDL_GetMouseState(&x, &y);
-        if (showMenu) {
+        if (menu.isShown) {
             menuHandle(x, y, mouseUp, this);
+            highScorePopUpHandle(x, y, mouseUp, this);
             break;
         }
-        chooseSpeed(x, y, mouseUp, camera);
-        chooseSongButton(x, y, mouseUp, fail);
+        chooseSpeed(x, y, mouseUp, this);
+        chooseSongButton(x, y, mouseUp, this);
         autoPlayHandle(x, y, mouseUp, this);
     }break;
     case SDL_MOUSEWHEEL:
@@ -452,7 +473,7 @@ void Game::handleInput(){
     }break;
     case SDL_KEYDOWN:
     {
-        if (!fail && !showMenu){
+        if (!fail && !menu.isShown){
             switch(event.key.keysym.sym)
             {
                 case SDLK_f:
@@ -480,7 +501,7 @@ void Game::handleInput(){
                 }
                 break;
                 case SDLK_ESCAPE:
-                    showMenu = 1; exit(); break;
+                    menu.isShown = 1; exit(); break;
                 default: break;
             }
         }
@@ -493,19 +514,19 @@ void Game::handleInput(){
                         fail = 0; 
                 }break;
                 case SDLK_ESCAPE:
-                    showMenu = 1; exit(); break;
+                    menu.isShown = 1; exit(); break;
                 default: break;
             }
         }
     }break;
     default: break;
     }
-    if (isAutoPlay && curTileID < tileList.size())
+    if (autoPlay.isShown && curTileID < tileList.size())
         tileList[curTileID].handleInput(3, fail, scoreTxt, highScoreTxt, failPopUp, this);
 }
 
 void Game::update(){
-    if (showMenu)
+    if (menu.isShown)
         return;
     camera.update(ratio);
     int goback = 0;
