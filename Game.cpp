@@ -44,6 +44,7 @@ void addTile(int songID, Game* game)
     ifstream fin("PianoPlay/pianoHub/" + song[songID] + ".txt");
     fin >> game->tileCount;
     string s;
+    game->tileList.clear();
     for (int i = 0; i < game->tileCount; i++){
         fin >> s;
         if (i > 0)
@@ -232,8 +233,11 @@ void chooseSongButton(const int& x, const int& y, sdlEvent event, int fail) {
 
 void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
     if (event == mouseUp) {
-        if (inside(x, y, menu.container[2].bloR))
+        if (inside(x, y, menu.container[2].bloR)) {
             game->showMenu = 0;
+            int nextID = rand() % songCnt;
+            nextID == game->curSongId ? addTile((nextID + 1) % songCnt, game) : addTile(nextID, game);
+        }
         else if (inside(x, y, menu.container[3].bloR))
             showChooseSong = 1;
         else if (inside(x, y, menu.container[4].bloR));
@@ -362,6 +366,22 @@ void Game::render(){
     SDL_RenderPresent(renderer);
 }
 
+void Game::exit() {
+    curTileID = lastSeenID = 0;
+    score = 0;
+    showChooseSong = showSpeedPopUp = fail = isAutoPlay = 0;
+    camera.stop = 1; camera.speed = 1.5;
+    for (int i = 0; i < 5; i++) {
+        if (i == 2) {
+            speedPopUp.container[i].setColor(white);
+            speedPopUp.container[i].setText(-1, black);
+        }
+        else 
+            speedPopUp.container[i].setColor(lightGrey),
+            speedPopUp.container[i].setText(-1, white);
+    }
+}
+
 void Game::handleInput(){
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -433,7 +453,7 @@ void Game::handleInput(){
                 }
                 break;
                 case SDLK_ESCAPE:
-                    showMenu = 1; break;
+                    showMenu = 1; exit(); break;
                 default: break;
             }
         }
@@ -444,11 +464,9 @@ void Game::handleInput(){
                 {
                     if (fail)
                         fail = 0; 
-                    else if (showMenu)
-                        showMenu = 0;
                 }break;
                 case SDLK_ESCAPE:
-                    showMenu = 1; break;
+                    showMenu = 1; exit(); break;
                 default: break;
             }
         }
@@ -460,6 +478,8 @@ void Game::handleInput(){
 }
 
 void Game::update(){
+    if (showMenu)
+        return;
     camera.update(ratio);
     int goback = 0;
     if (curTileID < tileList.size())

@@ -200,6 +200,7 @@ public:
 
     void init(const char* title);
     void render();
+    void exit();
     void handleInput();
     void update();
     void clean();
