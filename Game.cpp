@@ -11,9 +11,10 @@ PopUp failPopUp;
 Block speedTxt, autoPlay;
 PopUp speedPopUp;
 PopUp chooseSongPopUp;
-PopUp menu;
-bool showSpeedPopUp = 0, showChooseSong = 0;
+PopUp menu, manual;
+bool showSpeedPopUp = 0, showChooseSong = 0;//cho all bien nay thanh 1 phan of popup
 int cur1stSongInList = 1;
+bool showManual = 0;
 
 enum sdlEvent {
     mouseMotion, mouseUp, mouseDown, mouseWheel
@@ -155,13 +156,15 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
     }
     else if (event == mouseDown) {
         if (showChooseSong) {
-            game->showMenu = 0;
             for (int i = 1; i <= songCnt; i++)
                 if (chooseSongPopUp.visibleBlock(i) && inside(x, y, chooseSongPopUp.container[i].bloR)) {
+                    game->showMenu = 0;
                     game->tileList.clear();
                     addTile(i - 1, game);
                     game->curTileID = 0; game->lastSeenID = 0;
                 }
+            if (!inside(x, y, chooseSongPopUp.desR))
+                showChooseSong = 0;
         }
     }
     else if (event == mouseWheel) {
@@ -232,7 +235,7 @@ void chooseSongButton(const int& x, const int& y, sdlEvent event, int fail) {
 }
 
 void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
-    if (event == mouseUp) {
+    if (event == mouseUp && !showManual) {
         if (inside(x, y, menu.container[2].bloR)) {
             game->showMenu = 0;
             int nextID = rand() % songCnt;
@@ -241,9 +244,19 @@ void menuHandle(const int& x, const int& y, sdlEvent event, Game* game) {
         else if (inside(x, y, menu.container[3].bloR))
             showChooseSong = 1;
         else if (inside(x, y, menu.container[4].bloR));
-        else if (inside(x, y, menu.container[5].bloR));
+        else if (inside(x, y, menu.container[5].bloR)) {
+            showManual = 1;
+        }
         else if (inside(x, y, menu.container[6].bloR))
             game->isRunning = 0;
+    }
+}
+
+void manualHandle(const int& x, const int& y, sdlEvent event) {
+    if (event == mouseDown) {
+        if (showManual)
+            if (!inside(x, y, manual.desR))
+                showManual = 0;
     }
 }
 
@@ -284,6 +297,7 @@ void Game::init(const char* title){
     speedPopUp = PopUp(50, 550, 150, 253, ratio);
     chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
     menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ratio);
+    manual = PopUp(150, 200, 700, 600, ratio);
 
     menu.setColor(transparent);
     menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 100, white, renderer);
@@ -293,6 +307,16 @@ void Game::init(const char* title){
     menu.addBlock("", 300, 500, 300, 100, blueTranparent, "High Score", 0, 0, 80, white, renderer);
     menu.addBlock("", 300, 600, 300, 100, blueTranparent, "Help", 0, 0, 80, white, renderer);
     menu.addBlock("", 300, 700, 300, 100, blueTranparent, "Exit", 0, 0, 80, white, renderer);
+
+    manual.setColor(lightGrey);
+    manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 0, 0, 100, white, renderer);
+    manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 200, 700, 50, transparent, "Space to start, pause and consume game.", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 250, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 300, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your reference.", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 350, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but you won't get score", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 400, 700, 50, transparent, "The last thing, press Esc to back to menu.", 0, 0, 60, white, renderer);
 
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
@@ -334,6 +358,8 @@ void Game::render(){
         menu.show(renderer);
         if (showChooseSong)
             chooseSongPopUp.show(renderer);
+        if (showManual)
+            manual.show(renderer);
         SDL_RenderPresent(renderer);
         return;
     }
@@ -402,6 +428,7 @@ void Game::handleInput(){
         int x, y; SDL_GetMouseState(&x, &y);
         if (showMenu) {
             chooseSong(x, y, mouseDown, this, event);
+            manualHandle(x, y, mouseDown);
             break;
         }
         chooseSpeed(x, y, mouseDown, camera);
