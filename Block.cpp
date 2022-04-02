@@ -37,7 +37,7 @@ void Block::update(Game* game){
     }
     else if (name == "failTitle"){
         if (game->score == game->highScore && game->score > 0) {
-            game->highScorePopUp.container[1].content.updateText("Best score: " + to_string(game->highScore));
+            game->highScorePopUp.container[1].content.updateText("Best Score: " + to_string(game->highScore));
             content.updateText("High Score!!");
             setColor(blue);
         }

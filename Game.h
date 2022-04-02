@@ -105,7 +105,7 @@ private:
 public:
     vector<Block> container;
     SDL_Rect desR;
-    bool isShown;
+    bool isShown = 0;
 
     PopUp(){}
     PopUp(int x, int y, int w, int h, double _ratio);
@@ -126,28 +126,8 @@ class AudioManager
 public:
     static Mix_Chunk* notesList[14][8];
     static Mix_Chunk* winnerChunk;
-    static void playNote(const string& note, int channel, int time)
-    {
-        if (note == "")
-            return;
-        Mix_Chunk* sound;
-        if (note[1] >= '0' && note[1] <= '9')
-            sound = notesList[note[0]-'A'][note[1]-'0'];
-        else
-            sound =  notesList[note[0]-'A'+7][note[2]-'0'];
-        if (time == 0)
-            Mix_PlayChannel(channel, sound, 0);
-        else
-            Mix_PlayChannelTimed(channel, sound, 0, time);
-    }
-    static void addNote(const string& note)
-    {
-        string s = "PianoPlay/pianoHub/piano-mp3/" + note + ".wav";
-        if (note[1] >= '0' && note[1] <= '9')
-            notesList[note[0]-'A'][note[1]-'0'] = Mix_LoadWAV(&s[0]);
-        else
-            notesList[note[0]-'A'+7][note[2]-'0'] = Mix_LoadWAV(&s[0]);
-    }
+    static void playNote(const string& note, int channel, int time);
+    static void addNote(const string& note);
 };
 
 class TextureManager
@@ -169,16 +149,15 @@ public:
     SDL_Rect desR;
     string note[4][4];//~channelCount
     string bass[4][4];
+
     Tile(int width, int height, int stt, int prePos, double _ratio);
     void setNote(string _note, int channel, int consecutiveNotes, int isBass);
     int duration(int channel, int curpos, bool isNote);
     void playNote(int channel, bool isNote, int noteLength, int notePos, const Game* game);
-    void rightFirstNote(Game* game, PopUp& highScoreTxt);
+    void rightFirstNote(Game* game);
     void show(SDL_Renderer* renderer);
-    void handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
-                     PopUp& failPopUp, Game* game);
-    void update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScoreTxt,
-                PopUp& failPopUp, int stt, Game* game);
+    void handleInput(int posInput, Game* game);
+    void update(int gobackLength, int stt, Game* game);
     int takePos() { return pos; }
     bool hadTouched(){ return touched; }
 };
@@ -192,7 +171,7 @@ private:
 public:
     double ratio;
     SDL_Renderer* renderer;
-    bool isRunning; int fail; bool showWrongKey = 0;//necessary??
+    bool isRunning; int fail; bool showWrongKey = 0;
     int curTileID, tileCount, lastSeenID, score, highScore;
     Camera camera;
     int waitingTimeForAQuarterNote = 90;

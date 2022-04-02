@@ -50,11 +50,17 @@ int Tile::duration(int channel, int curpos, bool isNote) {
     return cnt;
 }
 
-void Fail(int& fail, PopUp& failPopUp, Game* game) {
+void Fail(Game* game) {
     AudioManager::playNote("A0", 0, 0);
-    fail = 1;
+    game->fail = 1;
     game->camera.stop = 1; game->lastSeenID = game->curTileID;
-    failPopUp.update(game);
+    if (game->score > game->highScore) {
+        game->highScore = game->score;
+        game->highScoreTxt.update(game);
+        ofstream fout("PianoPlay/pianoHub/highscore.txt");
+        fout << game->highScore;
+    }
+    game->failPopUp.update(game);
     game->score = 0;
 }
 
@@ -70,7 +76,7 @@ void Tile::playNote(int channel, bool isNote, int noteLength, int notePos, const
             game->waitingTimeForAQuarterNote * noteLength / game->camera.speed);
 }
 
-void Tile::rightFirstNote(Game* game, PopUp& highScoreTxt) {
+void Tile::rightFirstNote(Game* game) {
     cout << SDL_GetTicks() - curTick << '\n';
     curTick = SDL_GetTicks();
     touched = 1; game->curTileID++;
@@ -82,47 +88,39 @@ void Tile::rightFirstNote(Game* game, PopUp& highScoreTxt) {
         if (bass[channel][0] != "")
             playNote(channel + channelCount, 0, bassLength, 0, game);
     }
-    if (game->score > game->highScore) {
-        game->highScore = game->score;
-        highScoreTxt.update(game);
-        ofstream fout("PianoPlay/pianoHub/highscore.txt");
-        fout << game->highScore;
-    }
 }
 
-void Tile::handleInput(int posInput, int& fail, PopUp& scoreTxt, PopUp& highScoreTxt,
-                                    PopUp& failPopUp, Game* game)
+void Tile::handleInput(int posInput, Game* game)
 {
     cout << game->curTileID << '\n';
     if (game->autoPlay.isShown) {
         if (desR.y > 300 && !touched)
-            rightFirstNote(game, highScoreTxt);
+            rightFirstNote(game);
         return;
     }
     if (posInput == pos && desR.y + h >= 0){
         game->score++;
-        rightFirstNote(game, highScoreTxt);
+        rightFirstNote(game);
     }
     else {
-        Fail(fail, failPopUp, game); cout << "You fail because of wrong key\n";
+        Fail(game); cout << "You fail because of wrong key\n";
         game->showWrongKey = 1;
         game->wrongRect = {int(posInput * w + WINDOW_WIDTH * ratio/2 - GAME_WIDTH * ratio/2), desR.y, w, h};
     }
-    scoreTxt.update(game);
+    game->scoreTxt.update(game);
 }
 
-void Tile::update(int& fail, int gobackLength, PopUp& scoreTxt, PopUp& highScoreTxt,
-                   PopUp& failPopUp, int stt, Game* game)
+void Tile::update(int gobackLength, int stt, Game* game)
 {
-    if (fail){
+    if (game->fail){
         desR.y -= gobackLength * ratio + 1;
         return;
     }
     desR.y += int(game->camera.y * game->camera.speed);
     if (desR.y > GAME_HEIGHT * ratio + 10 && !touched){
-        Fail(fail, failPopUp, game); cout << "You fail because of untouched\n";
+        Fail(game); cout << "You fail because of untouched\n";
         desR.y -= (gobackLength + int(game->camera.y * game->camera.speed)) * ratio;
-        scoreTxt.update(game);
+        game->scoreTxt.update(game);
     }
     if (stt != game->curTileID - 1)
         return;

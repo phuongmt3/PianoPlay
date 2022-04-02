@@ -4,7 +4,6 @@ PopUp::PopUp(int x, int y, int w, int h, double _ratio){
     ratio = _ratio;
     desR = {int(x * ratio), int(y * ratio), int(w * ratio), int(h * ratio) };
     limitMoveUpValue = 0; limitMoveDownValue = h * ratio;
-    isShown = 0;
 }
 
 void PopUp::setLimit(int limitUp, int limitDown) {
