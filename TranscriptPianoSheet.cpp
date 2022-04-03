@@ -164,8 +164,8 @@ int main()
         //runBass(pos);
         fout << s[pos]; pos++;
         base[0] = 4; base[1] = 3;
-        //runNote(pos);
-        runBass(pos);
+        runNote(pos);
+        //runBass(pos);
         fout << '\n';
     }
 }
