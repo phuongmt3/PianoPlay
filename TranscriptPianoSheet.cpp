@@ -10,16 +10,16 @@ map<int, string> key0, key1;
 map<int, string> key0up, key0down, key1up, key1down;
 string s;
 
-string songName = "DemonSlayer";
+string songName = "MelodyOfTheNight5_ShiJin";
 ifstream fin("Raw_" + songName + ".txt");
 ofstream fout(songName + ".txt");
 
 void setUpDown()//change manually based on the song
 {
     //down[1] = down[4] = down[0] = down[3] = down[6] = down[2] = down[5] = 1;
-    //down[1] = 1;
+    down[1] = down[4] = down[0] = 1;
     //up[5] = up[2] = up[6] = up[3] = up[0] = up[4] = up[1] =  1;
-    up[5] = up[2] = up[6] = up[3] = up[0] = up[4] = 1;
+    //up[5] = up[2] = up[6] = up[3] = up[0] = up[4] = 1;
 }
 
 void init()
@@ -149,7 +149,6 @@ void runBass(int& pos)
 
 int main()
 {
-
     if (!fin.is_open()){
         cout << "file cannot open";
         return 0;
@@ -161,8 +160,8 @@ int main()
         int num = 0;
         int pos = 0;
         base[0] = 4; base[1] = 3;
-        //runNote(pos);
-        runBass(pos);
+        runNote(pos);
+        //runBass(pos);
         fout << s[pos]; pos++;
         base[0] = 4; base[1] = 3;
         //runNote(pos);

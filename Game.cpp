@@ -146,7 +146,7 @@ void Game::render(){
 
 void Game::exit() {
     curTileID = lastSeenID = 0;
-    score = 0;
+    score = 0; scoreTxt.update(this);
     chooseSongPopUp.isShown = speedPopUp.isShown = fail = autoPlay.isShown = 0;
     camera.stop = 1; camera.speed = 1.5;
     for (int i = 0; i < 5; i++) {
