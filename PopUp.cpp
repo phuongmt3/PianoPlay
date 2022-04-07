@@ -14,9 +14,9 @@ void PopUp::setLimit(int limitUp, int limitDown) {
 }
 
 void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
-      const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer){
+      const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer){
     container.push_back(Block(_name,(blox * ratio + desR.x)/ratio + 1, (bloy * ratio + desR.y)/ratio + 1,blow,bloh,blockColor,
-                            _text,x,y,fontSize,textColor,Orenderer,ratio));
+                            _text,x,y,fontSize,fontType,textColor,Orenderer,ratio));
 }
 void PopUp::update(Game* game){
     for (auto& i: container)

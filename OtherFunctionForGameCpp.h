@@ -12,9 +12,9 @@ enum sdlEvent {
     mouseMotion, mouseUp, mouseDown, mouseWheel
 };
 
-int songCnt = 9;
+int songCnt = 10;
 string song[] = {
-        "TwinkleTwinkleLittleStar",
+        "LittleStar",
         "MyAll_AyumiHamasaki",
         "YoruNiKakeru_Yoasobi",
         "ToLove'sEnd_Inuyasa",
@@ -22,6 +22,7 @@ string song[] = {
         "ToiThayHoaVangTrenCoXanh",
         "DemonSlayer",
         "MelodyOfTheNight5_ShiJin",
+        "KhongBang",
         "draft"
 };
 

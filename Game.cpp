@@ -25,8 +25,8 @@ void Game::init(const char* title){
     }
     else isRunning = 0;
 
-    scoreTxt = PopUp(20, 20, 200, 250, ratio);
-    highScoreTxt = PopUp(770, 20, 200, 250, ratio);
+    scoreTxt = PopUp(20, 20, 200, 300, ratio);
+    highScoreTxt = PopUp(770, 20, 200, 300, ratio);
     failPopUp = PopUp(300, 300, 400, 300, ratio);
     speedPopUp = PopUp(50, 550, 150, 253, ratio);
     chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
@@ -45,58 +45,60 @@ void Game::init(const char* title){
     addTile(rand() % songCnt, this);
 
     menu.setColor(transparent);
-    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 100, white, renderer);
-    menu.addBlock("title", 200, 130, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, white, renderer);
-    menu.addBlock("", 300, 300, 300, 100, blueTranparent, "Play", 0, 0, 80, white, renderer);
-    menu.addBlock("", 300, 400, 300, 100, blueTranparent, "Choose Song", 0, 0, 80, white, renderer);
-    menu.addBlock("", 300, 500, 300, 100, blueTranparent, "High Score", 0, 0, 80, white, renderer);
-    menu.addBlock("", 300, 600, 300, 100, blueTranparent, "Help", 0, 0, 80, white, renderer);
-    menu.addBlock("", 300, 700, 300, 100, blueTranparent, "Exit", 0, 0, 80, white, renderer);
+    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 120, 0, white, renderer);
+    menu.addBlock("title", 200, 150, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, 1, white, renderer);
+    menu.addBlock("", 300, 300, 300, 100, blueTranparent, "Play", 0, 0, 80, 0, white, renderer);
+    menu.addBlock("", 300, 400, 300, 100, blueTranparent, "Choose Song", 0, 0, 80, 0, white, renderer);
+    menu.addBlock("", 300, 500, 300, 100, blueTranparent, "High Score", 0, 0, 80, 0, white, renderer);
+    menu.addBlock("", 300, 600, 300, 100, blueTranparent, "Help", 0, 0, 80, 0, white, renderer);
+    menu.addBlock("", 300, 700, 300, 100, blueTranparent, "Exit", 0, 0, 80, 0, white, renderer);
 
     manual.setColor(lightGrey);
-    manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 0, 0, 100, white, renderer);
-    manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 200, 700, 50, transparent, "Space to start, pause and consume game.", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 250, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 300, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your reference.", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 350, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but you won't get score", 0, 0, 60, white, renderer);
-    manual.addBlock("", 0, 400, 700, 50, transparent, "The last thing, press Esc to back to menu.", 0, 0, 60, white, renderer);
+    manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 200, 0, 100, 0, white, renderer);
+    manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 230, 700, 50, transparent, "Space to start, pause and consume game.", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 280, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 330, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 380, 700, 50, transparent, " reference.", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 430, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 480, 700, 50, transparent, " you won't get any score.", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 530, 700, 50, transparent, "The last thing, press Esc to back to menu.", 10, 0, 40, 2, white, renderer);
 
     highScorePopUp.setColor(lightGrey);
     string bestScoreLine = "Best Score: " + to_string(highScore);
-    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 0, 0, 100, white, renderer);
-    highScorePopUp.addBlock("", 0, 100, 400, 100, transparent, bestScoreLine, 10, 0, 60, white, renderer);
-    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 20, 0, 80, white, renderer);
+    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 0, 0, 100, 0, white, renderer);
+    highScorePopUp.addBlock("", 0, 100, 400, 100, transparent, bestScoreLine, 10, 0, 60, 1, white, renderer);
+    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 20, 0, 80, 0, white, renderer);
 
     scoreTxt.setColor(transparent);
-    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,white,renderer);
-    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",20,0,150,white,renderer);
+    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,0,white,renderer);
+    scoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,"0",10,0,100,1,white,renderer);
 
     highScoreTxt.setColor(transparent);
-    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,white, renderer);
-    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,to_string(highScore), 20, 0, 150, white, renderer);
+    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,0,white, renderer);
+    highScoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,to_string(highScore), 10, 0, 100, 1, white, renderer);
 
     failPopUp.setColor(lightGrey);
-    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,white, renderer);
-    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,white, renderer);
-    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,red, renderer);
-    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,white, renderer);
+    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,0,white, renderer);
+    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,0,white, renderer);
+    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,0,red, renderer);
+    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,0,white, renderer);
 
-    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, white, renderer, ratio);
+    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, 0, white, renderer, ratio);
 
-    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,10,70,white, renderer, ratio);
+    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,10,70,0,white, renderer, ratio);
     speedPopUp.setColor(lightGrey);
-    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,white, renderer);
-    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,white, renderer);
-    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,black, renderer);
-    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,white, renderer);
-    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,white, renderer);
+    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,0,white, renderer);
+    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,0,white, renderer);
+    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,0,black, renderer);
+    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,0,white, renderer);
+    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,0,white, renderer);
 
     chooseSongPopUp.setColor(lightGrey);
-    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, white, renderer);
+    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, 0, white, renderer);
     for (int i = 0; i < songCnt; i++)
-        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, darkGrey, song[i], 10, 0, 60, white, renderer);
+        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, darkGrey, song[i], 10, 10, 50, 1, white, renderer);
     chooseSongPopUp.setLimit(100, -1);
 }
 

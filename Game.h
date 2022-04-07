@@ -59,9 +59,9 @@ private:
 public:
     SDL_Rect desR;
     Text();
-    Text(const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio);
+    Text(const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio);
     void updateText(const string& newText);
-    void updateFont(int fontSize);
+    void updateFont(int fontSize, int type);
     void updateColor(Color type);
     void updateTexture();
     void show();
@@ -84,7 +84,7 @@ public:
 
     Block();
     Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
-          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio);
+          const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio);
     void setText(int fontType, Color colorType);
     void setColor(Color newColor);
     void show();
@@ -110,7 +110,7 @@ public:
     PopUp(){}
     PopUp(int x, int y, int w, int h, double _ratio);
     void addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
-          const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer);
+          const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer);
     void setLimit(int limitUp, int limitDown);
     void setColor(Color newColor);
     void update(Game* game);

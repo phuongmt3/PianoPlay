@@ -1,11 +1,11 @@
 #include "Game.h"
 
 Text::Text(){}
-Text::Text(const string& _text, int x, int y, int fontSize, Color textColor, SDL_Renderer* Orenderer, double _ratio)
+Text::Text(const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio)
 {
     renderer = Orenderer; ratio = _ratio;
     text = _text;
-    updateFont(fontSize);
+    updateFont(fontSize, fontType);
     updateTexture();
     int w, h;
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
@@ -23,9 +23,14 @@ void Text::updateText(const string& newText)
     updateTexture();
 }
 
-void Text::updateFont(int fontSize)
+void Text::updateFont(int fontSize, int type)
 {
-    gFont = TTF_OpenFont("PianoPlay/TTFfonts/ENDORALT.ttf", fontSize * ratio);
+    if (type == 1)
+        gFont = TTF_OpenFont("PianoPlay/TTFfonts/Sensations and Qualities.ttf", fontSize * ratio);
+    else if (type == 0)
+        gFont = TTF_OpenFont("PianoPlay/TTFfonts/ENDORALT.ttf", fontSize * ratio);
+    else if (type == 2)
+        gFont = TTF_OpenFont("PianoPlay/TTFfonts/CalligraphyFLF.ttf", fontSize * ratio);
     updateTexture();
 }
 void Text::updateColor(Color type)
