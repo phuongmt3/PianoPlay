@@ -300,6 +300,6 @@ void highScorePopUpHandle(const int& x, const int& y, sdlEvent event, Game* game
             game->highScorePopUp.container[1].content.updateText("Best Score: 0");
             ofstream fout("PianoPlay/pianoHub/highscore.txt");
             fout << game->highScore;
-            AudioManager::playNote("A2", -1, 1000);
+            AudioManager::playNote("A2", -1, 2000);
         }
 }

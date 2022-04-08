@@ -27,10 +27,11 @@ const SDL_Color colorList[] = {
     { 30, 35, 247, 255 },
     { 0, 0, 0, 0},
     { 0, 0, 0, 255},
-    { 30, 35, 247, 180}
+    { 30, 35, 247, 180},
+    { 245, 254, 6, 255}
 };
 enum Color {
-    white, red, darkGrey, lightGrey, blue, transparent, black, blueTranparent
+    white, red, darkGrey, lightGrey, blue, transparent, black, blueTranparent, yellow
 };
 
 class Game;

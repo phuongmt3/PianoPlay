@@ -32,7 +32,7 @@ void Game::init(const char* title){
     chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
     menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ratio);
     manual = PopUp(150, 200, 700, 600, ratio);
-    highScorePopUp = PopUp(300, 200, 400, 500, ratio);
+    highScorePopUp = PopUp(300, 200, 400, 400, ratio);
 
     ifstream fin("PianoPlay/pianoHub/highscore.txt");
     fin >> highScore;
@@ -45,13 +45,13 @@ void Game::init(const char* title){
     addTile(rand() % songCnt, this);
 
     menu.setColor(transparent);
-    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 120, 0, white, renderer);
-    menu.addBlock("title", 200, 150, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, 1, white, renderer);
-    menu.addBlock("", 300, 300, 300, 100, blueTranparent, "Play", 0, 0, 80, 0, white, renderer);
-    menu.addBlock("", 300, 400, 300, 100, blueTranparent, "Choose Song", 0, 0, 80, 0, white, renderer);
-    menu.addBlock("", 300, 500, 300, 100, blueTranparent, "High Score", 0, 0, 80, 0, white, renderer);
-    menu.addBlock("", 300, 600, 300, 100, blueTranparent, "Help", 0, 0, 80, 0, white, renderer);
-    menu.addBlock("", 300, 700, 300, 100, blueTranparent, "Exit", 0, 0, 80, 0, white, renderer);
+    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 140, 0, white, renderer);
+    menu.addBlock("title", 250, 170, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, 1, white, renderer);
+    menu.addBlock("", 330, 300, 300, 100, blueTranparent, "Play", 100, 0, 80, 0, white, renderer);
+    menu.addBlock("", 330, 400, 300, 100, blueTranparent, "Choose Song", 40, 0, 80, 0, white, renderer);
+    menu.addBlock("", 330, 500, 300, 100, blueTranparent, "High Score", 50, 0, 80, 0, white, renderer);
+    menu.addBlock("", 330, 600, 300, 100, blueTranparent, "Help", 100, 0, 80, 0, white, renderer);
+    menu.addBlock("", 330, 700, 300, 100, blueTranparent, "Exit", 100, 0, 80, 0, white, renderer);
 
     manual.setColor(lightGrey);
     manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 200, 0, 100, 0, white, renderer);
@@ -67,13 +67,13 @@ void Game::init(const char* title){
 
     highScorePopUp.setColor(lightGrey);
     string bestScoreLine = "Best Score: " + to_string(highScore);
-    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 0, 0, 100, 0, white, renderer);
-    highScorePopUp.addBlock("", 0, 100, 400, 100, transparent, bestScoreLine, 10, 0, 60, 1, white, renderer);
-    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 20, 0, 80, 0, white, renderer);
+    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 100, 0, 100, 0, white, renderer);
+    highScorePopUp.addBlock("", 0, 125, 400, 100, transparent, bestScoreLine, 30, 0, 60, 1, white, renderer);
+    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 40, 0, 80, 0, white, renderer);
 
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,0,white,renderer);
-    scoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,"0",10,0,100,1,white,renderer);
+    scoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,"0",15,0,100,1,white,renderer);
 
     highScoreTxt.setColor(transparent);
     highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,0,white, renderer);
@@ -82,8 +82,8 @@ void Game::init(const char* title){
     failPopUp.setColor(lightGrey);
     failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,0,white, renderer);
     failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,0,white, renderer);
-    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,0,red, renderer);
-    failPopUp.addBlock("",100,215,200,75,transparent,"Choose song",0,0,80,0,white, renderer);
+    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,0,yellow, renderer);
+    failPopUp.addBlock("",90,215,220,75,transparent,"Choose song",10,0,80,0,white,renderer);
 
     autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, 0, white, renderer, ratio);
 
