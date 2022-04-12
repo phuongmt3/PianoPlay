@@ -41,6 +41,9 @@ void Game::init(const char* title){
     gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
     bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
+    AudioManager::menuMusic = Mix_LoadMUS("PianoPlay/pianoHub/piano-mp3/Beautiful-Piano.mp3");
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+    Mix_PlayMusic(AudioManager::menuMusic, -1);
     addSound();
     addTile(rand() % songCnt, this);
 
@@ -105,6 +108,10 @@ void Game::init(const char* title){
 void Game::render(){
     if (menu.isShown) {
         SDL_RenderClear(renderer);
+        if (Mix_PausedMusic()) {
+            Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+            Mix_PlayMusic(AudioManager::menuMusic, -1);
+        }
         SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
         TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
         menu.show(renderer);
@@ -128,6 +135,8 @@ void Game::render(){
         fail = 2;
     }
     SDL_RenderClear(renderer);
+    if (Mix_PlayingMusic())
+        Mix_PauseMusic();
     SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH * ratio /2 - GAME_WIDTH * ratio /2,
                                                     WINDOW_HEIGHT* ratio /2 - GAME_HEIGHT * ratio /2,
                                                     GAME_WIDTH* ratio,GAME_HEIGHT* ratio };

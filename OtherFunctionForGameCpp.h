@@ -3,6 +3,7 @@
 
 Mix_Chunk* AudioManager::notesList[14][8];
 Mix_Chunk* AudioManager::winnerChunk;
+Mix_Music* AudioManager::menuMusic;
 
 Uint32 Tile::curTick;
 

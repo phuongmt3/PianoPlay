@@ -127,6 +127,7 @@ class AudioManager
 public:
     static Mix_Chunk* notesList[14][8];
     static Mix_Chunk* winnerChunk;
+    static Mix_Music* menuMusic;
     static void playNote(const string& note, int channel, int time);
     static void addNote(const string& note);
 };

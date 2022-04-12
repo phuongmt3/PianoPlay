@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
     game->init("PianoTitles");
     int framesPerSec = 60;
     const int secPerFrame = 1000/framesPerSec;
-    do{
+    do {
         Uint32 startTime = SDL_GetTicks();
         game->render();
         game->handleInput();
