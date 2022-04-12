@@ -76,11 +76,11 @@ void Game::init(const char* title){
 
     scoreTxt.setColor(transparent);
     scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,0,white,renderer);
-    scoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,"0",15,0,100,1,white,renderer);
+    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",15,0,150,0,white,renderer);
 
     highScoreTxt.setColor(transparent);
     highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,0,white, renderer);
-    highScoreTxt.addBlock("scoreOnlyNum",0,120,200,100,transparent,to_string(highScore), 10, 0, 100, 1, white, renderer);
+    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,to_string(highScore), 10, 0, 150, 0, white, renderer);
 
     failPopUp.setColor(lightGrey);
     failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,0,white, renderer);
