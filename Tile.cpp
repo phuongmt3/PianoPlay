@@ -94,7 +94,7 @@ void Tile::handleInput(int posInput, Game* game)
 {
     cout << game->curTileID << '\n';
     if (game->autoPlay.isShown) {
-        if (desR.y > 300 && !touched)
+        if (desR.y > 600 && !touched)
             rightFirstNote(game);
         return;
     }

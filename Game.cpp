@@ -60,7 +60,7 @@ void Game::init(const char* title){
     manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 200, 0, 100, 0, white, renderer);
     manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 10, 0, 40, 2, white, renderer);
     manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 230, 700, 50, transparent, "Space to start, pause and consume game.", 10, 0, 40, 2, white, renderer);
+    manual.addBlock("", 0, 230, 700, 50, transparent, "Press SPACE to start, pause and continue game.", 10, 0, 40, 2, white, renderer);
     manual.addBlock("", 0, 280, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 10, 0, 40, 2, white, renderer);
     manual.addBlock("", 0, 330, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your", 10, 0, 40, 2, white, renderer);
     manual.addBlock("", 0, 380, 700, 50, transparent, " reference.", 10, 0, 40, 2, white, renderer);
