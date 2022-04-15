@@ -7,8 +7,6 @@ Mix_Music* AudioManager::menuMusic;
 
 Uint32 Tile::curTick;
 
-int cur1stSongInList = 1;//chuyen thanh static trong Game
-
 enum sdlEvent {
     mouseMotion, mouseUp, mouseDown, mouseWheel
 };
@@ -32,6 +30,75 @@ bool isChar(char c)
     if (c == ',' || c == '-' || c == '+' || c == '=')
         return 1;
     return 0;
+}
+
+void setBlocks(Game* game) {
+    SDL_Renderer* renderer = game->renderer;
+    game->scoreTxt = PopUp(20, 20, 200, 300, game->ratio);
+    game->highScoreTxt = PopUp(770, 20, 200, 300, game->ratio);
+    game->failPopUp = PopUp(300, 300, 400, 300, game->ratio);
+    game->speedPopUp = PopUp(50, 550, 150, 253, game->ratio);
+    game->chooseSongPopUp = PopUp(300, 200, 400, 480, game->ratio);
+    game->menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, game->ratio);
+    game->manual = PopUp(150, 200, 700, 600, game->ratio);
+    game->highScorePopUp = PopUp(300, 200, 400, 400, game->ratio);
+
+    game->menu.setColor(transparent);
+    game->menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 140, 0, white, renderer);
+    game->menu.addBlock("title", 250, 170, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, 1, white, renderer);
+    game->menu.addBlock("", 330, 300, 300, 100, blueTranparent, "Play", 100, 0, 80, 0, white, renderer);
+    game->menu.addBlock("", 330, 400, 300, 100, blueTranparent, "Choose Song", 40, 0, 80, 0, white, renderer);
+    game->menu.addBlock("", 330, 500, 300, 100, blueTranparent, "High Score", 50, 0, 80, 0, white, renderer);
+    game->menu.addBlock("", 330, 600, 300, 100, blueTranparent, "Help", 100, 0, 80, 0, white, renderer);
+    game->menu.addBlock("", 330, 700, 300, 100, blueTranparent, "Exit", 100, 0, 80, 0, white, renderer);
+
+    game->manual.setColor(lightGrey);
+    game->manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 200, 0, 100, 0, white, renderer);
+    game->manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 230, 700, 50, transparent, "Press SPACE to start, pause and continue game.", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 280, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 330, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 380, 700, 50, transparent, " reference.", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 430, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 480, 700, 50, transparent, " you won't get any score.", 10, 0, 40, 2, white, renderer);
+    game->manual.addBlock("", 0, 530, 700, 50, transparent, "The last thing, press Esc to back to menu.", 10, 0, 40, 2, white, renderer);
+
+    game->highScorePopUp.setColor(lightGrey);
+    string bestScoreLine = "Best Score: " + to_string(game->highScore);
+    game->highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 100, 0, 100, 0, white, renderer);
+    game->highScorePopUp.addBlock("", 0, 125, 400, 100, transparent, bestScoreLine, 30, 0, 60, 1, white, renderer);
+    game->highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 40, 0, 80, 0, white, renderer);
+
+    game->scoreTxt.setColor(transparent);
+    game->scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,0,white,renderer);
+    game->scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",15,0,150,0,white,renderer);
+
+    game->highScoreTxt.setColor(transparent);
+    game->highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,0,white, renderer);
+    game->highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,to_string(game->highScore), 10, 0, 150, 0, white, renderer);
+
+    game->failPopUp.setColor(lightGrey);
+    game->failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,0,white, renderer);
+    game->failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,0,white, renderer);
+    game->failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,0,yellow, renderer);
+    game->failPopUp.addBlock("",90,215,220,75,transparent,"Choose song",10,0,80,0,white,renderer);
+
+    game->autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, 0, white, renderer, game->ratio);
+
+    game->speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,10,70,0,white, renderer, game->ratio);
+    game->speedPopUp.setColor(lightGrey);
+    game->speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,0,white, renderer);
+    game->speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,0,white, renderer);
+    game->speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,0,black, renderer);
+    game->speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,0,white, renderer);
+    game->speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,0,white, renderer);
+
+    game->chooseSongPopUp.setColor(lightGrey);
+    game->chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, 0, white, renderer);
+    for (int i = 0; i < songCnt; i++)
+        game->chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, darkGrey, song[i], 10, 10, 50, 1, white, renderer);
+    game->chooseSongPopUp.setLimit(100, -1);
 }
 
 void addTile(int songID, Game* game)
@@ -154,7 +221,7 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
         if (game->chooseSongPopUp.isShown) {
             for (int i = 1; i <= songCnt; i++)
                 if (game->chooseSongPopUp.visibleBlock(i) && inside(x, y, game->chooseSongPopUp.container[i].bloR)) {
-                    game->menu.isShown = 0;
+                    game->menu.isShown = 0; game->fail = 0;
                     addTile(i - 1, game);
                     game->curTileID = 0; game->lastSeenID = 0;
                 }
@@ -164,15 +231,15 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
     }
     else if (event == mouseWheel) {
         if (inside(x, y, game->chooseSongPopUp.desR)) {
-            if (e.wheel.y < 0 && cur1stSongInList + 4 < songCnt) {
-                cur1stSongInList++;
-                int step = game->chooseSongPopUp.takeY_BasePopUp(cur1stSongInList) - game->chooseSongPopUp.limitMoveUp();
+            if (e.wheel.y < 0 && game->cur1stSongInList + 4 < songCnt) {
+                game->cur1stSongInList++;
+                int step = game->chooseSongPopUp.takeY_BasePopUp(game->cur1stSongInList) - game->chooseSongPopUp.limitMoveUp();
                 for (int i = 1; i <= songCnt; i++)
                     game->chooseSongPopUp.container[i].changePos(0, -step);
             }
-            else if (e.wheel.y > 0 && cur1stSongInList > 1) {
-                cur1stSongInList--;
-                int step = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(cur1stSongInList);
+            else if (e.wheel.y > 0 && game->cur1stSongInList > 1) {
+                game->cur1stSongInList--;
+                int step = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(game->cur1stSongInList);
                 for (int i = 1; i <= songCnt; i++)
                     game->chooseSongPopUp.container[i].changePos(0, step);
             }
@@ -182,7 +249,7 @@ void chooseSong(const int& x, const int& y, sdlEvent event, Game* game, const SD
         if (game->fail && !game->chooseSongPopUp.isShown && inside(x, y, game->failPopUp.container[3].bloR))
             game->chooseSongPopUp.isShown = 1;
         else if (!game->menu.isShown || !inside(x, y, game->chooseSongPopUp.desR)) {
-            game->chooseSongPopUp.isShown = 0; cur1stSongInList = 1;
+            game->chooseSongPopUp.isShown = 0; game->cur1stSongInList = 1;
             int comeback = game->chooseSongPopUp.limitMoveUp() - game->chooseSongPopUp.takeY_BasePopUp(1);
             if (comeback > 0)
                 for (int i = 1; i <= songCnt; i++)

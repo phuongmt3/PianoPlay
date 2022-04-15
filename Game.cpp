@@ -2,18 +2,20 @@
 #include "OtherFunctionForGameCpp.h"
 
 void Game::init(const char* title){
-    if (SDL_Init(SDL_INIT_EVERYTHING) == 0){
+    if (SDL_Init(SDL_INIT_EVERYTHING) == 0) {
         cout << "Init completed!\n";
+
         SDL_DisplayMode DM;
         SDL_GetCurrentDisplayMode(0, &DM);
-        ratio = DM.h / double(WINDOW_HEIGHT); //ratio = 1;
+        ratio = DM.h / double(WINDOW_HEIGHT);
+
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio,0);
-        if (window){
+            SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH * ratio, WINDOW_HEIGHT * ratio, 0);
+        if (window) {
             cout << "Created window!\n";
         }
         renderer = SDL_CreateRenderer(window, -1, 0);
-        SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         if (renderer)
             cout << "Created renderer\n";
         else cout << "Cannot create renderer\n";
@@ -25,84 +27,29 @@ void Game::init(const char* title){
     }
     else isRunning = 0;
 
-    scoreTxt = PopUp(20, 20, 200, 300, ratio);
-    highScoreTxt = PopUp(770, 20, 200, 300, ratio);
-    failPopUp = PopUp(300, 300, 400, 300, ratio);
-    speedPopUp = PopUp(50, 550, 150, 253, ratio);
-    chooseSongPopUp = PopUp(300, 200, 400, 480, ratio);
-    menu = PopUp(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, ratio);
-    manual = PopUp(150, 200, 700, 600, ratio);
-    highScorePopUp = PopUp(300, 200, 400, 400, ratio);
-
     ifstream fin("PianoPlay/pianoHub/highscore.txt");
     fin >> highScore;
+    setBlocks(this);
+
     camera.stop = 1; waitingTimeForAQuarterNote = round(ratio * waitingTimeForAQuarterNote);
     fail = 0; menu.isShown = 1;
+
     gameBg = TextureManager::takeTexture("PianoPlay/pianoHub/piano.png", renderer);
     bg = TextureManager::takeTexture("PianoPlay/pianoHub/pianobg.png", renderer);
+    srcRGame = { 0,0,1080,2052 }; 
+    desRGame = { int(WINDOW_WIDTH * ratio / 2 - GAME_WIDTH * ratio / 2),
+                int(WINDOW_HEIGHT * ratio / 2 - GAME_HEIGHT * ratio / 2),
+                int(GAME_WIDTH * ratio), int(GAME_HEIGHT * ratio) };
+    srcRBg = { 0,0,1000,900 }; 
+    desRBg = { 0,0,int(WINDOW_WIDTH * ratio), int(WINDOW_HEIGHT * ratio) };
+
     AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
     AudioManager::menuMusic = Mix_LoadMUS("PianoPlay/pianoHub/piano-mp3/Beautiful-Piano.mp3");
     Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
     Mix_PlayMusic(AudioManager::menuMusic, -1);
+
     addSound();
     addTile(rand() % songCnt, this);
-
-    menu.setColor(transparent);
-    menu.addBlock("title", 300, 30, 300, 100, transparent, "Piano Tiles", 0, 0, 140, 0, white, renderer);
-    menu.addBlock("title", 250, 170, 500, 100, transparent, "Anyone can be a piano pro...", 0, 0, 60, 1, white, renderer);
-    menu.addBlock("", 330, 300, 300, 100, blueTranparent, "Play", 100, 0, 80, 0, white, renderer);
-    menu.addBlock("", 330, 400, 300, 100, blueTranparent, "Choose Song", 40, 0, 80, 0, white, renderer);
-    menu.addBlock("", 330, 500, 300, 100, blueTranparent, "High Score", 50, 0, 80, 0, white, renderer);
-    menu.addBlock("", 330, 600, 300, 100, blueTranparent, "Help", 100, 0, 80, 0, white, renderer);
-    menu.addBlock("", 330, 700, 300, 100, blueTranparent, "Exit", 100, 0, 80, 0, white, renderer);
-
-    manual.setColor(lightGrey);
-    manual.addBlock("", 0, 0, 700, 100, darkGrey, "User manual", 200, 0, 100, 0, white, renderer);
-    manual.addBlock("", 0, 100, 700, 50, transparent, "You just got stucked then now come to see me, right?", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 150, 700, 50, transparent, "Anyway, I will forgive you for that...", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 230, 700, 50, transparent, "Press SPACE to start, pause and continue game.", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 280, 700, 50, transparent, "Press F, G, H, J conrresponding to postion of tiles.", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 330, 700, 50, transparent, "Default speed is 1.5, but you can change it based on your", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 380, 700, 50, transparent, " reference.", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 430, 700, 50, transparent, "Choose AutoPlay to listen to music without playing, but", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 480, 700, 50, transparent, " you won't get any score.", 10, 0, 40, 2, white, renderer);
-    manual.addBlock("", 0, 530, 700, 50, transparent, "The last thing, press Esc to back to menu.", 10, 0, 40, 2, white, renderer);
-
-    highScorePopUp.setColor(lightGrey);
-    string bestScoreLine = "Best Score: " + to_string(highScore);
-    highScorePopUp.addBlock("", 0, 0, 400, 100, darkGrey, "Victory", 100, 0, 100, 0, white, renderer);
-    highScorePopUp.addBlock("", 0, 125, 400, 100, transparent, bestScoreLine, 30, 0, 60, 1, white, renderer);
-    highScorePopUp.addBlock("", 0, 200, 400, 100, blueTranparent, "Reset High Score", 40, 0, 80, 0, white, renderer);
-
-    scoreTxt.setColor(transparent);
-    scoreTxt.addBlock("",0,0,200,100,transparent,"Score",30,0,100,0,white,renderer);
-    scoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,"0",15,0,150,0,white,renderer);
-
-    highScoreTxt.setColor(transparent);
-    highScoreTxt.addBlock("",0,0,200,100,transparent,"High Score",0,20,80,0,white, renderer);
-    highScoreTxt.addBlock("scoreOnlyNum",0,100,200,100,transparent,to_string(highScore), 10, 0, 150, 0, white, renderer);
-
-    failPopUp.setColor(lightGrey);
-    failPopUp.addBlock("failTitle",0,0,400,75,darkGrey,"You lose!",100,0,80,0,white, renderer);
-    failPopUp.addBlock("score",0,75,400,75,transparent,"Your score: 0",80,0,70,0,white, renderer);
-    failPopUp.addBlock("",0,140,400,75,transparent,"SPACE to play again",70,10,50,0,yellow, renderer);
-    failPopUp.addBlock("",90,215,220,75,transparent,"Choose song",10,0,80,0,white,renderer);
-
-    autoPlay = Block("", 795, 800, 160, 100, blueTranparent, "AutoPlay", 15, 10, 70, 0, white, renderer, ratio);
-
-    speedTxt = Block("",50,800,150,100,blueTranparent,"Speed",25,10,70,0,white, renderer, ratio);
-    speedPopUp.setColor(lightGrey);
-    speedPopUp.addBlock("",0,0,150,50,lightGrey,"0.5",10,0,60,0,white, renderer);
-    speedPopUp.addBlock("",0,50,150,50,lightGrey,"1",10,0,60,0,white, renderer);
-    speedPopUp.addBlock("",0,100,150,50,white,"1.5",10,0,60,0,black, renderer);
-    speedPopUp.addBlock("",0,150,150,50,lightGrey,"2",10,0,60,0,white, renderer);
-    speedPopUp.addBlock("",0,200,150,50,lightGrey,"2.5",10,0,60,0,white, renderer);
-
-    chooseSongPopUp.setColor(lightGrey);
-    chooseSongPopUp.addBlock("title", 0, 0, 400, 100, transparent, "Song List", 85, -5, 100, 0, white, renderer);
-    for (int i = 0; i < songCnt; i++)
-        chooseSongPopUp.addBlock("", 0, 100 + i * 75, 400, 75, darkGrey, song[i], 10, 10, 50, 1, white, renderer);
-    chooseSongPopUp.setLimit(100, -1);
 }
 
 void Game::render(){
@@ -112,7 +59,6 @@ void Game::render(){
             Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
             Mix_PlayMusic(AudioManager::menuMusic, -1);
         }
-        SDL_Rect srcRBg = { 0,0,1000,900 }, desRBg = { 0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
         TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
         menu.show(renderer);
         if (chooseSongPopUp.isShown)
@@ -137,10 +83,6 @@ void Game::render(){
     SDL_RenderClear(renderer);
     if (Mix_PlayingMusic())
         Mix_PauseMusic();
-    SDL_Rect srcRGame = {0,0,1080,2052}, desRGame = {WINDOW_WIDTH * ratio /2 - GAME_WIDTH * ratio /2,
-                                                    WINDOW_HEIGHT* ratio /2 - GAME_HEIGHT * ratio /2,
-                                                    GAME_WIDTH* ratio,GAME_HEIGHT* ratio };
-    SDL_Rect srcRBg = {0,0,1000,900}, desRBg = {0,0,WINDOW_WIDTH * ratio,WINDOW_HEIGHT * ratio };
     TextureManager::drawImage(bg, srcRBg, desRBg, this->renderer);
     TextureManager::drawImage(gameBg, srcRGame, desRGame, this->renderer);
     showTile(this);
@@ -260,10 +202,9 @@ void Game::handleInput(){
             switch(event.key.keysym.sym)
             {
                 case SDLK_SPACE:
-                {
                     if (fail)
                         fail = 0; 
-                }break;
+                break;
                 case SDLK_ESCAPE:
                     menu.isShown = 1; exit(); break;
                 default: break;

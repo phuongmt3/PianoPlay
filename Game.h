@@ -50,7 +50,6 @@ public:
 
 class Text
 {
-private:
     SDL_Color textColor = colorList[white];
     TTF_Font *gFont = nullptr;
     string text;
@@ -73,7 +72,6 @@ public:
 
 class Block
 {
-private:
     string name;
     Color colorType;
     SDL_Renderer* renderer;
@@ -98,7 +96,6 @@ public:
 
 class PopUp
 {
-private:
     Color colorType;
     double ratio;
     int limitMoveUpValue, limitMoveDownValue;
@@ -122,9 +119,8 @@ public:
     int limitMoveDown() { return limitMoveDownValue;  }
 };
 
-class AudioManager
+struct AudioManager
 {
-public:
     static Mix_Chunk* notesList[14][8];
     static Mix_Chunk* winnerChunk;
     static Mix_Music* menuMusic;
@@ -132,16 +128,14 @@ public:
     static void addNote(const string& note);
 };
 
-class TextureManager
+struct TextureManager
 {
-public:
     static SDL_Texture* takeTexture(const char* link, SDL_Renderer* renderer);
     static void drawImage(SDL_Texture* tex, SDL_Rect src, SDL_Rect des, SDL_Renderer* renderer);
 };
 
 class Tile
 {
-private:
     int w, h, pos; static Uint32 curTick;
     double ratio;
     int channelCount = 4;
@@ -166,14 +160,15 @@ public:
 
 class Game
 {
-private:
     SDL_Window* window;
     SDL_Texture* bg, * gameBg;
+    SDL_Rect srcRGame, desRGame, srcRBg, desRBg;
 
 public:
     double ratio;
     SDL_Renderer* renderer;
     bool isRunning; int fail; bool showWrongKey = 0;
+    int cur1stSongInList = 1;
     int curTileID, tileCount, lastSeenID, score, highScore;
     Camera camera;
     int waitingTimeForAQuarterNote = 90;
