@@ -1,7 +1,8 @@
 #include "Game.h"
 
 Text::Text(){}
-Text::Text(const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio)
+Text::Text(const string& _text, int x, int y, int fontSize, int fontType, 
+            Color textColor, SDL_Renderer* Orenderer, double _ratio)
 {
     renderer = Orenderer; ratio = _ratio;
     text = _text;

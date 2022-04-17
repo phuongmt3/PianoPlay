@@ -1,18 +1,17 @@
 #include "Game.h"
 
 Block::Block(){}
-Block::Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
+Block::Block(const string& _name, const SDL_Rect& rec, Color blockColor,
           const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio){
     renderer = Orenderer; ratio = _ratio;
-    bloR = {int(blox * ratio), int(bloy * ratio), int(blow * ratio), int(bloh * ratio)};
+    bloR = {int(rec.x * ratio), int(rec.y * ratio), int(rec.w * ratio), int(rec.h * ratio)};
     colorType = blockColor;
     content = Text(_text, (x * ratio + bloR.x)/ratio + 1, (y * ratio + bloR.y)/ratio + 1, fontSize, fontType, textColor, renderer, ratio);
     name = _name;
 }
 
-void Block::setText(int fontType, Color colorType){
+void Block::setText(Color colorType){
     content.updateColor(colorType);
-    //content.updateFont(fontType);
 }
 
 void Block::show(){
@@ -39,11 +38,11 @@ void Block::update(Game* game){
         if (game->score == game->highScore && game->score > 0) {
             game->highScorePopUp.container[1].content.updateText("Best Score: " + to_string(game->highScore));
             content.updateText("High Score!!");
-            setColor(blue); setText(-1, white);
+            setColor(blue); setText(white);
         }
         else {
             content.updateText("You lose!");
-            setColor(darkGrey); setText(-1, red);
+            setColor(darkGrey); setText(red);
         }
     }
 }

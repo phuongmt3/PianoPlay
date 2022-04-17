@@ -82,9 +82,9 @@ public:
     bool isShown = 0;
 
     Block();
-    Block(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,
+    Block(const string& _name, const SDL_Rect& rec, Color blockColor,
           const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer, double _ratio);
-    void setText(int fontType, Color colorType);
+    void setText(Color colorType);
     void setColor(Color newColor);
     void show();
     void update(Game* game);
@@ -106,8 +106,8 @@ public:
     bool isShown = 0;
 
     PopUp(){}
-    PopUp(int x, int y, int w, int h, double _ratio);
-    void addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
+    PopUp(const SDL_Rect& rec, double _ratio);
+    void addBlock(const string& _name, const SDL_Rect& block, Color blockColor,//block so voi Popup, text sv block
           const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer);
     void setLimit(int limitUp, int limitDown);
     void setColor(Color newColor);

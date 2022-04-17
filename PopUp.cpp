@@ -1,9 +1,9 @@
 #include "Game.h"
 
-PopUp::PopUp(int x, int y, int w, int h, double _ratio){
+PopUp::PopUp(const SDL_Rect& rec, double _ratio){
     ratio = _ratio;
-    desR = {int(x * ratio), int(y * ratio), int(w * ratio), int(h * ratio) };
-    limitMoveUpValue = 0; limitMoveDownValue = h * ratio;
+    desR = {int(rec.x * ratio), int(rec.y * ratio), int(rec.w * ratio), int(rec.h * ratio) };
+    limitMoveUpValue = 0; limitMoveDownValue = desR.h;
 }
 
 void PopUp::setLimit(int limitUp, int limitDown) {
@@ -13,10 +13,11 @@ void PopUp::setLimit(int limitUp, int limitDown) {
         limitMoveDownValue = limitDown * ratio;
 }
 
-void PopUp::addBlock(const string& _name, int blox, int bloy, int blow, int bloh, Color blockColor,//block so voi Popup, text sv block
+void PopUp::addBlock(const string& _name, const SDL_Rect& block, Color blockColor,//block so voi Popup, text sv block
       const string& _text, int x, int y, int fontSize, int fontType, Color textColor, SDL_Renderer* Orenderer){
-    container.push_back(Block(_name,(blox * ratio + desR.x)/ratio + 1, (bloy * ratio + desR.y)/ratio + 1,blow,bloh,blockColor,
-                            _text,x,y,fontSize,fontType,textColor,Orenderer,ratio));
+    container.push_back(Block(_name, 
+        { int((block.x * ratio + desR.x) / ratio + 1), int((block.y * ratio + desR.y) / ratio + 1), block.w, block.h },
+        blockColor,_text,x,y,fontSize,fontType,textColor,Orenderer,ratio));
 }
 void PopUp::update(Game* game){
     for (auto& i: container)

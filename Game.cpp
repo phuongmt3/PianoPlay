@@ -43,11 +43,6 @@ void Game::init(const char* title){
     srcRBg = { 0,0,1000,900 }; 
     desRBg = { 0,0,int(WINDOW_WIDTH * ratio), int(WINDOW_HEIGHT * ratio) };
 
-    AudioManager::winnerChunk = Mix_LoadWAV("PianoPlay/pianoHub/piano-mp3/mixkit-male-voice-cheer-2010.wav");
-    AudioManager::menuMusic = Mix_LoadMUS("PianoPlay/pianoHub/piano-mp3/Beautiful-Piano.mp3");
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
-    Mix_PlayMusic(AudioManager::menuMusic, -1);
-
     addSound();
     addTile(rand() % songCnt, this);
 }
@@ -105,11 +100,11 @@ void Game::exit() {
     for (int i = 0; i < 5; i++) {
         if (i == 2) {
             speedPopUp.container[i].setColor(white);
-            speedPopUp.container[i].setText(-1, black);
+            speedPopUp.container[i].setText(black);
         }
         else 
             speedPopUp.container[i].setColor(lightGrey),
-            speedPopUp.container[i].setText(-1, white);
+            speedPopUp.container[i].setText(white);
     }
 }
 
