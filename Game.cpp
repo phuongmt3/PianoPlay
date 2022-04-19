@@ -108,6 +108,7 @@ void Game::exit() {
     }
 }
 
+
 void Game::handleInput(){
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -115,9 +116,11 @@ void Game::handleInput(){
     {
     case SDL_QUIT:
         isRunning = 0; break;
+
     case SDL_MOUSEMOTION:
     {
         int x, y; SDL_GetMouseState(&x, &y);
+
         if (menu.isShown) {
             menuHandle(x, y, mouseMotion, this);
             highScorePopUpHandle(x, y, mouseMotion, this);
@@ -129,6 +132,7 @@ void Game::handleInput(){
         chooseSong(x, y, mouseMotion, this, event);
         autoPlayHandle(x, y, mouseMotion, this);
     }break;
+
     case SDL_MOUSEBUTTONDOWN:
     {
         int x, y; SDL_GetMouseState(&x, &y);
@@ -140,7 +144,9 @@ void Game::handleInput(){
         }
         chooseSpeed(x, y, mouseDown, this);
         chooseSong(x, y, mouseDown, this, event);
-    }break;
+    }
+    break;
+
     case SDL_MOUSEBUTTONUP:
     {
         int x, y; SDL_GetMouseState(&x, &y);
@@ -154,11 +160,13 @@ void Game::handleInput(){
         chooseSong(x, y, mouseUp, this, event);
         autoPlayHandle(x, y, mouseUp, this);
     }break;
+
     case SDL_MOUSEWHEEL:
     {
         int x, y; SDL_GetMouseState(&x, &y);
         chooseSong(x, y, mouseWheel, this, event);
     }break;
+
     case SDL_KEYDOWN:
     {
         if (!fail && !menu.isShown){
@@ -166,19 +174,27 @@ void Game::handleInput(){
             {
                 case SDLK_f:
                     if (!camera.stop)
-                        tileList[curTileID].handleInput(0, this);
+                        tileList[curTileID].handleInput(0, this); 
+                    if (camera.autoSpeed)
+                        camera.speed += camera.speedIncreasePerStep;
                     break;
                 case SDLK_g:
                     if (!camera.stop)
                         tileList[curTileID].handleInput(1, this);
+                    if (camera.autoSpeed)
+                        camera.speed += camera.speedIncreasePerStep;
                     break;
                 case SDLK_h:
                     if (!camera.stop)
                         tileList[curTileID].handleInput(2, this);
+                    if (camera.autoSpeed)
+                        camera.speed += camera.speedIncreasePerStep;
                     break;
                 case SDLK_j:
                     if (!camera.stop)
                         tileList[curTileID].handleInput(3, this);
+                    if (camera.autoSpeed)
+                        camera.speed += camera.speedIncreasePerStep;
                     break;
                 case SDLK_SPACE:
                 {
@@ -208,6 +224,7 @@ void Game::handleInput(){
     }break;
     default: break;
     }
+
     if (autoPlay.isShown && curTileID < tileList.size())
         tileList[curTileID].handleInput(3, this);
 }
@@ -219,18 +236,22 @@ void Game::update(){
     int goback = 0;
     if (curTileID < tileList.size())
         goback = tileList[curTileID].desR.y + tileList[curTileID].desR.h;
+
     for (int i = lastSeenID; i < tileList.size(); i++)
         tileList[i].update(goback, i, this);
+
     while (lastSeenID > 0) {
         tileList.erase(tileList.begin());
         curTileID--;
         lastSeenID--;
     }
+
     if (tileList.size() > 0 && tileList[lastSeenID].desR.y > WINDOW_HEIGHT * ratio + 10 &&
         tileList[lastSeenID].hadTouched()) {
         tileList.erase(tileList.begin());
         curTileID--;
     }
+
     if (tileList.empty()){
         Mix_PlayChannel(6, AudioManager::winnerChunk, 0);
         SDL_Delay(2000);

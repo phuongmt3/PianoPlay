@@ -39,7 +39,8 @@ class Camera
 {
 public:
     double y = 8, speed = 1.5;
-    bool stop;
+    const double speedIncreasePerStep = 0.005;
+    bool stop, autoSpeed = 0;
     void update(double ratio)
     {
         if (stop)

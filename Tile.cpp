@@ -53,7 +53,10 @@ int Tile::duration(int channel, int curpos, bool isNote) {
 void Fail(Game* game) {
     AudioManager::playNote("A0", 0, 0);
     game->fail = 1;
-    game->camera.stop = 1; game->lastSeenID = game->curTileID;
+    game->camera.stop = 1; 
+    if (game->camera.autoSpeed)
+        game->camera.speed = 1;
+    game->lastSeenID = game->curTileID;
     if (game->score > game->highScore) {
         game->highScore = game->score;
         game->highScoreTxt.update(game);

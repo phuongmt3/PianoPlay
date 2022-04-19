@@ -37,7 +37,7 @@ void setBlocks(Game* game) {
     game->scoreTxt = PopUp({ 20, 20, 200, 300 }, game->ratio);
     game->highScoreTxt = PopUp({ 770, 20, 200, 300 }, game->ratio);
     game->failPopUp = PopUp({ 300, 300, 400, 300 }, game->ratio);
-    game->speedPopUp = PopUp({ 50, 550, 150, 253 }, game->ratio);
+    game->speedPopUp = PopUp({ 50, 500, 150, 303 }, game->ratio);
     game->chooseSongPopUp = PopUp({ 300, 200, 400, 480 }, game->ratio);
     game->menu = PopUp({ 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT }, game->ratio);
     game->manual = PopUp({ 150, 200, 700, 600 }, game->ratio);
@@ -88,11 +88,12 @@ void setBlocks(Game* game) {
 
     game->speedTxt = Block("", { 50,800,150,100 }, blueTranparent, "Speed", 25, 10, 70, 0, white, renderer, game->ratio);
     game->speedPopUp.setColor(lightGrey);
-    game->speedPopUp.addBlock("", { 0,0,150,50 }, lightGrey, "0.5", 10, 0, 60, 0, white, renderer);
-    game->speedPopUp.addBlock("", { 0,50,150,50 }, lightGrey, "1", 10, 0, 60, 0, white, renderer);
-    game->speedPopUp.addBlock("", { 0,100,150,50 }, white, "1.5", 10, 0, 60, 0, black, renderer);
-    game->speedPopUp.addBlock("", { 0,150,150,50 }, lightGrey, "2", 10, 0, 60, 0, white, renderer);
-    game->speedPopUp.addBlock("", { 0,200,150,50 }, lightGrey, "2.5", 10, 0, 60, 0, white, renderer);
+    game->speedPopUp.addBlock("", { 0,0,150,50 }, lightGrey, "0.5", 60, -5, 60, 0, white, renderer);
+    game->speedPopUp.addBlock("", { 0,50,150,50 }, lightGrey, "1", 70, -5, 60, 0, white, renderer);
+    game->speedPopUp.addBlock("", { 0,100,150,50 }, white, "1.5", 60, -5, 60, 0, black, renderer);
+    game->speedPopUp.addBlock("", { 0,150,150,50 }, lightGrey, "2", 70, -5, 60, 0, white, renderer);
+    game->speedPopUp.addBlock("", { 0,200,150,50 }, lightGrey, "2.5", 60, -5, 60, 0, white, renderer);
+    game->speedPopUp.addBlock("", { 0,250,150,50 }, lightGrey, "Auto", 50, 0, 45, 0, white, renderer);
 
     game->chooseSongPopUp.setColor(lightGrey);
     game->chooseSongPopUp.addBlock("title", { 0, 0, 400, 100 }, transparent, "Song List", 85, -5, 100, 0, white, renderer);
@@ -187,16 +188,22 @@ void chooseSpeed(const int& x, const int& y, sdlEvent event, Game* game) {
     }
     else if (event == mouseDown) {
         if (game->speedPopUp.isShown) {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 6; i++) {
                 if (inside(x, y, game->speedPopUp.container[i].bloR)) {
-                    game->camera.speed = 0.5 + 0.5 * i;
+                    if (i == 5)
+                        game->camera.autoSpeed = 1, game->camera.speed = 1.2;
+                    else
+                        game->camera.speed = 0.5 + 0.5 * i;
                     game->speedPopUp.container[i].setColor(white);
                     game->speedPopUp.container[i].setText(black);
-                    AudioManager::playNote("A" + to_string(i + 2), -1, 2000);
+                    AudioManager::playNote("A" + to_string(i + 1), -1, 2000);
                 }
-                else if (inside(x, y, game->speedPopUp.desR))
-                    game->speedPopUp.container[i].setColor(lightGrey),
+                else if (inside(x, y, game->speedPopUp.desR)) {
+                    game->speedPopUp.container[i].setColor(lightGrey);
                     game->speedPopUp.container[i].setText(white);
+                    if (i == 5)
+                        game->camera.autoSpeed = 0;
+                }
             }
         }
     }
