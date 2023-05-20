@@ -7,7 +7,7 @@
 <h2 align="center">Piano Play</h2>
 
   <p align="center">
-    Anyone can play piano here
+    Anyone can play piano
     <br />
     <a href="https://github.com/phuongmt3/PianoPlay"><strong>Explore the docs »</strong></a>
     <br />
